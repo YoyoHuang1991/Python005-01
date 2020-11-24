@@ -2,9 +2,7 @@
 
 
 01 如何正確區分Python的版本：
-	1. 舊版的軟體開發多為python 2.7版本, 目前新的多以python 3.7
-	https://www.python.org/downloads/  下載 Windows x86-64 executable installer
-	
+	1. 舊版的軟體開發多為python 2.7版本, 目前新的多以python 3.7, https://www.python.org/downloads/  下載 Windows x86-64 executable installer
 	2. tensorFlow2為例，官網會寫支援3.5~3.8版本，故建議不要選擇最新的版本，以免不能用。
 	3. 各版本有不同特性，要到Python.org看文件說明，解釋各版本的新變化。"向後不兼容的"、"新的內置特性"。
 	4. linux下載的是原代碼，通過make和make install把原代碼編譯成python可執行的程序。
@@ -22,7 +20,7 @@
 	9. 指令輸入ls  /Library/…/3.7，來到python3.7的安裝目錄
 	10. 指令ls  /Library/…/3.7/lib，底下又有一個python3.7的資料夾，指令ls  /Library/…/3.7/lib/python3.7，找到site-packages/，裡面就是所有擴展包第三方庫。Ls /Library/…/3.8/lib/python3.8/site-packages/列出3.8版本安裝的第三方庫。
 	11. 不同版本內site-package/都有pip，且名字相同。在安裝擴展包時，使用pip3.7指令，會安裝到python3.7的版本內，pip3.8則會安裝到python3.8版本內。
-04 Python交互模式使用
+	04 Python交互模式使用
 	1. 進入python3，help(str)可以看到class str相關的function，在linux要使用help('str')。
 	2. 若pip -V沒有發現已安裝的pip，在linux安裝pip3，sudo apt-get install python3-pip
 	3. 安裝ipython，指令pip3 install ipython，安裝過程若顯示warning: installed in '/home/…./.local/bin'，則需要到該目錄，ls 會顯示方才安裝第三方庫，使用指令sudo mv iptest iptest3 ipython ipython3 pygmentize /usr/local/bin，將path移到local，在terminal執行ipython指令時，才可正常運作。
