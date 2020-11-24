@@ -1,3 +1,17 @@
+#!/user/bin/env python
+# -*- coding:utf-8 -*-
+'''
+#學號: G20200389060057
+#姓名: 黃喻榆
+#作業＆總結連結: https://github.com/YoyoHuang1991/Python005-01/tree/master/week01
+
+功能: 
+1. 編寫一個函數，當函數被調用時，將調用的時間紀錄在日誌中
+2. 保存位置為: /var/log/python-當前日期/test.log
+創建; 2020-11-24
+'''
+
+
 import logging
 import os
 import time
