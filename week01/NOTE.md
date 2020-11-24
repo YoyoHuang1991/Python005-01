@@ -6,8 +6,10 @@
 	2. tensorFlow2為例，官網會寫支援3.5~3.8版本，故建議不要選擇最新的版本，以免不能用。
 	3. 各版本有不同特性，要到Python.org看文件說明，解釋各版本的新變化。"向後不兼容的"、"新的內置特性"。
 	4. linux下載的是原代碼，通過make和make install把原代碼編譯成python可執行的程序。
+
 02 在不同操作系統中安裝python
 	1. 安裝目錄不要中文、空格、特殊字符。非必要情況盡可能安裝一個python解釋器。安裝多個python版本須注意path環境設置。
+
 03 多個python解釋器共存會有甚麼問題
 	1. 在windows系統可以用py -0指令看目前電腦安裝幾個版本的python，mac os則是輸入python 按兩下tab鍵。
 	2. 平時執行python程序，會輸入python3 空格 projectName venv執行，但不知道python3會執行哪個版本。
@@ -20,13 +22,15 @@
 	9. 指令輸入ls  /Library/…/3.7，來到python3.7的安裝目錄
 	10. 指令ls  /Library/…/3.7/lib，底下又有一個python3.7的資料夾，指令ls  /Library/…/3.7/lib/python3.7，找到site-packages/，裡面就是所有擴展包第三方庫。Ls /Library/…/3.8/lib/python3.8/site-packages/列出3.8版本安裝的第三方庫。
 	11. 不同版本內site-package/都有pip，且名字相同。在安裝擴展包時，使用pip3.7指令，會安裝到python3.7的版本內，pip3.8則會安裝到python3.8版本內。
-	04 Python交互模式使用
+
+04 Python交互模式使用
 	1. 進入python3，help(str)可以看到class str相關的function，在linux要使用help('str')。
 	2. 若pip -V沒有發現已安裝的pip，在linux安裝pip3，sudo apt-get install python3-pip
 	3. 安裝ipython，指令pip3 install ipython，安裝過程若顯示warning: installed in '/home/…./.local/bin'，則需要到該目錄，ls 會顯示方才安裝第三方庫，使用指令sudo mv iptest iptest3 ipython ipython3 pygmentize /usr/local/bin，將path移到local，在terminal執行ipython指令時，才可正常運作。
 	4. 更改鏡像站的指令，pip install -I https:/pypi.tuna.tsinghua.edu.edu.cn/simple pip -U，更新
 	5. pip安裝加速，配置文件liux: ~/.pip/pip.conf，pip ~指令可以直接回到用戶根目錄。
 	6. 指令mkdir -p .pip建立文件夾，cd .pip進入.pip文件夾，用vim pip.conf，新增文件。貼上index-url = https:/pypi.tuna.tsinghua.edu.edu.cn/simple，再按i鍵進入insert模式，完成後按esc，再按:wq退出。
+
 05 Python IDE的使用技巧
 	1. 在vs code官網下載linux版本的deb安裝檔案，於terminal執行sudo dpkg -i 檔案名稱.deb，開始安裝。安裝完後，指令code 即可開啟vs code程序。
 	2. 打開txt檔右下角顯示utf-8表示編碼格式，若不匹配，會產生亂碼。打開py檔，左下角顯示當前以哪個版本的python解釋器解釋。
@@ -42,6 +46,7 @@
 	4. 創建好虛擬開發環境後，用指令source myfirstvenv/bin/activate，指令which python3，可以看虛擬環境的python安裝位置。執行deactivate，離開虛擬環境。
 	5. 創建不同版本的虛擬環境，做不同環境的程序測試。
 	6. 當程序設計好，要遷移到生產環境中，將.py打包壓縮傳到生產環境並在生產環境安裝相同版本的python。activate開發環境的虛擬環境，指令pip3 freeze查看虛擬環境中安裝那些第三方庫。指令pip3 freeze > requirements.txt，cat requirements.txt查看。離開deactivate，activate第二個虛擬環境，指令pip install -r ./requirements.txt，透過txt檔列出的第三方庫安裝。指令pip3 freeze，第二個虛擬環境即安裝好相同的第三方庫。
+
 07 Python的基本數據類型
 	1. None, Bool, 數值(整數、浮點、負數), 序列(字串、列表、元組), 集合(字典), 可調用
 	2. 關係運算符==, !=, >, <
@@ -50,13 +55,16 @@
 	5. Z=('a','b','c')  元組與list是同繼承同一個class，有相同的function，如count()
 	6. python之禪，import this，核心觀念
 	7. 字典dict1 = {'k1': 'v1', 'k2':'v2'}，dict['k1']可調用裡面的value。
+
 08 Python的高級數據類型
 	1. collections容器數據類型、namtuple()命名元組、deque雙端隊列、counter計數器、orderedDict有順序的字典(哈希算法)
 	2. 打開collection官方文檔。 https://docs.python.org/zh-tw/3.7/library/collections.html
 	3. 示範from collections import deque，atog = deque('def')建立deque(['d','e','f'])的隊列。
+
 09 控制流: 數據類型對應算法
 	1. 將複雜的算法拆解，做成遞歸。
 	2. If 條件判斷式、while的演示、while I < len(list1)。盡量用for i in list1，方有pythonic的風格，可以用for來做迭代。
+
 10 函數和模塊的區別
 	1. 常見模塊
 		a. time、datetime、logging、random、json、pathlib、os.path
@@ -65,6 +73,7 @@
 		a. Import short
 		b. Vim short.py，加入def short_func(): print('life is short')，編輯完後，cat short.py，可查看文檔。
 		c. If __name__ == '__main__': short_func()，當直接執行short.py時，才會運行以下程序。若作為模塊導入到其他py文件中，則不會被執行。以上寫法叫做dander，變數名稱前後有兩個底線。
+
 11 Python標準庫: 日期時間處理
 	1. time、datetime、logging、random、json、pathlib、os.path，到python官方文檔查看詳細說明。
 	2. 在terminal使用ipython做練習，
@@ -101,6 +110,7 @@
 		g. 再打開ipython，依然指定filename='test.log'，並不會覆寫，而是追加寫入。 
 		h. Logging.basicConfig(filename='test.log', level=logging.DEBUG,datefmt='%Y-%m-%d %H:%M:%S', format = '%(asctime)s %(name)-8s ％(levelname)-8s [line: %(lineno)d] %(message)s')
 其中%(asctime)s後變得s是輸出類型為string的意思。
+
 13 Python標準庫：路徑處理
 	1. 進到ipython，from random import *, 或是import random，則需要輸入random.random()來使用，該功能會隨機輸出0.0~1.0之間的浮點數。
 		a. 用randrange(0,101,2)則從0~100、步長為2，隨機選號。Choice(['red', 'blue', 'orange'])則是從中隨機選一個。
@@ -162,6 +172,7 @@
 		a. 指令ps -ef | grep deamon查看是否仍在運行。
 		b. 指令tail -f d1.log 以自動更新的方式查看日誌。
 		c. 關閉掉當前terminal後，再新開terminal仍可查看到該daemon持續運行。
+
 
 15 Python標準庫：正則表達式實戰
 	1. 到python官方文檔，查看re的說明，建議全部通讀。
