@@ -1,5 +1,8 @@
 学习笔记
-01 
+
+
+01
+----
 1. OSI參考模型與TCP/IP模型
 2. OSI參考模型(理論上規定，須符合的規定):
 	1. 物理層
@@ -28,7 +31,9 @@
 		1. Send()
 		1. Close()
 		1. 實戰: 不使用開源框架的前提下完成一個echo服務端和echo客戶端。
+
 02 寫一個Socket客戶端
+----
 1. 用VS code打開mod2_client1.py，requests函式庫已經將底層進行封裝，此處編成時，僅看到應用層的部分，輸入網址即可。
 1. 若要用socket底層的部分來實現requests應用的功能也可以，但就要考慮Socket, connect, write, read, close
 	1. send將訊息寫到網卡上面
@@ -49,7 +54,9 @@
 		+ 由於html內容較長，這邊是寫入到index.html的方法，不在terminal打印出來。
 	1. 應用層requests的好處是對底層進行封裝，編程較簡單；相對地為強調效率，有些協議在TCP解決，沒有上升到應用層，例如:直接用TCP協議發送binary等等這些數據，達到高效的通信。
 	1. Mac os 寫入文件時，若發生權限不足的狀況，可以sudo chown -R 使用者名稱 文件夾路徑，開啟寫入權限。
+
 03 Echo Server實戰
+----
 1. 最早出現的服務器是Echo，向服務端發送字符，原樣地發回客戶端，主要用來證明TCP的連接是通，作為健康檢查的機制。
 2. VS code快捷鍵，按住ctrl+左鍵，點擊要查找的class名稱，可以看該class是怎麼實現的。
 3. 如何實現echo_client? 跟上一節一樣，先建立s 套接字，在作s.connect()。
@@ -57,7 +64,9 @@
 5. 服務端該如何做? 接收請求、發送訊息。
 	+ 服務端跟客戶端第一個用的函數不一樣，是s.bind((HOST, PORT))，綁訂到主機和端口上。為何要綁定?因為listen()表示要接收多少連接，指定使用哪個端口；進入listen狀態，其他程序就不能再占用這個端口。
 	+ 用s.accept()接收客戶端的連接
+
 04 Web開發必備前端基礎
+----
 1. 客戶端最上層的，即是我們使用的瀏覽器。
 2. 爬蟲第一步，用相應的庫將客戶端替換掉，使python程式能解析HTTP協議。
 3. 能解析甚麼? 在網頁上檢視原代碼，如何看專有的名詞?
@@ -67,6 +76,7 @@
 	1. 可關注jQuery的dollar.ajax的方法，目前異步更新數據重要的手段。
 
 05 HTTP協議和瀏覽器的關係
+----
 1. 爬蟲是用python程序模擬客戶端瀏覽器接收HTTP訊息的行為以及發起請求。
 2. 打開網頁>檢查>network>header，檢視HTTP頭部Headers的訊息。
 	1. headers裡存放使用者登入、發出的指令等訊息，控制的東西也寫到Headers。
@@ -77,7 +87,9 @@
 		+ POST的方式，用在用戶名的登入"發送內容"。
 	3. Request header其中的cookie是需要留意的，當有cookie時，代表使用者帶著用戶名稱與密碼向服務端發起請求。如果已經登入成功，cookie就包含登入的驗證訊息。爬蟲時，該如何帶著驗證訊息、保持登入，以便持續爬蟲呢? 即用此加密過後的訊息進行提交。
 		+ User-Agent:告訴服務端目前客戶端的瀏覽器形式，亦有反爬蟲的作用。一般爬蟲模擬正常用戶，一方面是cookie中驗證訊息，第二部分即是user-agent做模擬。
+
 06 requests庫入門實戰
+----
 1. 提出需求，獲取豆瓣電影的內容，寫入文件。
 2. 打開mod2_requests.py，關鍵在requests.get(myurl, headers = header)，爬回的資料存入response
 	a. 其中response.text可以打印網頁內容，response.status_code可以返回狀態碼。
@@ -85,7 +97,9 @@
 3. Python預習標準庫時，有urllib，from urllib import request，要用兩行resp = request.urlopen("http://httpbin,org/get") 與 resp.read().decode()，遠沒有requests這種第三方庫方便。
 4. 其中request.get中的header參數就是模擬瀏覽器的headers，若沒有用header，則會出現418碼返回錯誤。
 5. 爬蟲的關鍵在於，盡可能讓python程式盡可能向正常使用者，用header與cookies
+
 07 異常捕獲處理
+----
 1. 保存文檔兩種方法
 	+ Open，需要用close()關閉
 	+ With open上下文管理器，會自動關閉，以免達到文件開啟數量的上限，造成開啟失敗。
@@ -115,7 +129,9 @@
 	+ 打開code p7_custom_with.py，自己實現with 的功能。
 		+ 其中def __call__(self)將class偉裝成一個函數來使用。
 	+ 像__str__這種前後有雙下畫線的函數，統稱為魔術方法。
+
 08 重構：增加程序的健壯性
+----
 1. 讓requests功能的網頁可以爬蟲、抓error、下載到本地。
 2. Requests.get()容易沒回應或出錯, 做try and exception
 3. Response.text存到本地文件，
@@ -132,7 +148,9 @@
 	+ 判斷if not html_path.is_dir(): Path.mkdir(html_path)，Path內置的功能mkdir()。有目錄後，再建立存放文件的路徑page，這時候文件還沒有建立。
 	+ 用with open，w寫入,encoding='uft-8'，f.write(response.text)
 	+ 當文件無法打開FileNotFoundError, 常有使用者權限不夠，而無法打開所造成的錯誤。
+
 09深入了解HTTP協議
+----
 1. 使用ipython，import requests，r = requests.get('http://www.httpbin.org/')
 2. 查詢目前url，可以用r.url
 3. 透過requests傳遞參數，定義payload = {'key1': 'value1', 'key2': ['value2', 'value3']}，把參數帶入requests.get('http://www.httpbin.org', params=payload)，再用r.url可看到參數被帶到url內，http://www.httpbin.org/?key1=value1&key2=value2&key2=value3'
@@ -146,6 +164,7 @@
 	+ User-agent，若不知道該用哪個user設定，可以直接複製自己的電腦瀏覽器的設定。
 	
 10深入了解POST方式和cookie
+----
 1. 直接把url貼到瀏覽器請求內容的方式稱為get，按F12快速打開檢查，network中看status_code為405錯誤。
 2. 使用post時，帶入的data參數是一個dict()的type。只用requests的內置功能.json()，可以把數據以json化的方式打印在terminal上。
 3. 專門用作http協議學習的網站http://www.httpbin.org/
@@ -167,6 +186,7 @@
 14. 將內容寫入文件中，with open('profile.html' 'w+') as f: 其中w+為追加寫入的方式。
 
 11使用XPath匹配網頁內容＆實現翻頁功能
+----
 1.  翻頁事實上是點擊一個連結，以get的方式請求內容，每一頁增加25的規律。Start=0即是第一頁，start=25等於第二頁。當沒有後一頁時，須以邏輯判斷處理。
 2. 打開mod2_pageturn.py，功能的實現，import requests, 以及lxml中的XPath做網頁內容匹配。多頁迭代容易出現反爬蟲的功能，用from time import sleep每翻一頁休息5秒，避免請求過快。
 3. 用urls儲存所有頁面的url，由於後續不會再變動，所以tuple的方式儲存多個字符串。Tuple(元組)
@@ -182,6 +202,7 @@
 	+ 電影名稱取出來多個元素以列表方式儲存，需要進一步用zip()將兩個列表連接，並轉換成dict()存到film_info。
 
 12使用自頂向下的設計思維拆分項目代碼
+----
 1. 從整體分析一個比較複雜的大問題。分析方法可以重用。拆分到你能解決的範疇。
 2. 爬蟲可模擬scrapy框架，專門做分布式爬蟲的框架。如果用requests自己實現分布式的爬蟲，也看參考較成熟的框架怎麼實現的。搜索"scrapy架構圖"，如何從requests進化成scrapy。
 3. requests可是做一個簡單的瀏覽器，抓取後下載到本地的過程也可以做拆解。從理論出發，得從設計模式考慮；或是學習現成的框架如何實現拆分。scrapy分為八個步驟：
@@ -192,7 +213,9 @@
 	+ “下載器”如同requests真正發起請求的。
 	+ “管道”每個網頁進行保存，儲存檔案的部分，如果是文字、圖片，則要用到open()，若要存到數據庫，則要與數據庫連接。
 	+ 拆分到可重複的程度。拆分到自己可以解決的實例。
+
 13模擬Scrapy拆分爬除框架 (sample file: mod2_miniScrapy.py)
+----
 1. 使用函式庫
 	+ /import requests
 	+ /from lxml import etree
