@@ -82,9 +82,14 @@ while True:
 
             # 2、解析命令，提取相應命令引數
             cmds = res.decode('utf-8').split() # ['get','1.txt']
-            filename = cmds[1]
+            filename = cmds[1] #在client端已經確認cmds為長度為2的list
             
             if cmds[0] == 'get':  #傳送檔案給客戶端
+                if not os.path.isfile(os.path.join(share_dir, filename)):
+                    conn.send('無該檔案'.encode('utf-8'))
+                    continue
+                else:
+                    conn.send('有該檔案'.encode('utf-8'))
                 client_get(conn, share_dir, filename)
             elif cmds[0] == 'upload': #接收來自客戶端的檔案
                 conn.send('yes'.encode('utf-8'))  #回覆client端暫停的recv()    

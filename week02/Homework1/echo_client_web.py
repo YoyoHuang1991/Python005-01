@@ -83,6 +83,10 @@ while True:
 
         if cmd.split()[0] == 'get': #接收來自服務端的檔案
             gd_client.send(cmd.encode('utf-8'))
+            isfile = gd_client.recv(12)
+            if isfile.decode('utf-8') == '無該檔案':
+                print('Server沒有該檔案')
+                continue
             client_download(gd_client, download_dir)
         elif cmd.split()[0] == 'upload':
             filedir = os.path.join(upload_dir, cmd.split()[1])
