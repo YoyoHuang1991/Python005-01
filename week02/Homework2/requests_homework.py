@@ -2,7 +2,6 @@
 import requests
 from pathlib import Path
 import sys
-from lxml import etree
 # PEP-8
 # Google Python 风格指引
 
