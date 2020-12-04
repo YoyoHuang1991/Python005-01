@@ -1,5 +1,11 @@
 学习笔记
 
+Homework1 基于 TCP 协议改造 echo 服务端和客户端代码，实现服务端和客户端可以传输单个文件的功能。
+----
+1. client上傳檔案：傳輸檔案與接收，使用.send(), .recv()，若recv()中不限制字節的話，會把傳輸方所有.send()的內容都接收完，導致沒辦法抓取檔案header的內容。我這邊在client端輸入“upload test_image.png”後，執行conn.recv()的指令，讓server端收到'upload test_image.png'在等待.recv前，也.send()訊息給client端，讓client端收到server回應後，再做'發送表頭size、表頭內容、檔案內容'三個動作。但這種等待回應的方式感覺有點多餘，不知道有沒有更優雅的做法。
+2. client下載檔案：相對上傳，比較沒有問題。
+
+
 
 01
 ----
