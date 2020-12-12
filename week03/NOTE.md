@@ -60,11 +60,11 @@
 	[root@localhost ~]# systemctl start mysqld
 	[root@localhost ~]# systemctl status mysqld
 	```
-	6.查看root初始隨機密碼
+	6. 查看root初始隨機密碼
 	```Shell
 	[root@localhost ~]# grep 'temporary password' /var/log/mysqld.log
 	```
-	7.修改密碼
+	7. 修改密碼
 	```Shell
 	[root@localhost ~]# mysql -uroot -p
 	mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewPassWord!';
@@ -73,52 +73,47 @@
 	set password=password('NewPassWord!');
 	```
 	
-	8.遠端連接MySQL設定，外部連接需開啟防火牆MySQL預設3306 Port，檢視3306 Port是否開啟
+	8. 遠端連接MySQL設定，外部連接需開啟防火牆MySQL預設3306 Port，檢視3306 Port是否開啟
 	```Shell
 	[root@localhost ~]# firewall-cmd --query-port=3306/tcp
 	no
 	```
 	目前3306為關閉狀態，需開啟外部才可連接MySQL
-	9.開啟指令
+	9. 開啟指令
 	```Shell
 	[root@localhost ~]# firewall-cmd --zone=public --add-port=3306/tcp --permanent
 	```
-	10.關閉指令
+	10. 關閉指令
 	```Shell
 	[root@localhost ~]#  firewall-cmd --zone=public --remove-port=3306/tcp --permanent
 	```
-	11.設定好後重啟防火牆
+	11. 設定好後重啟防火牆
 	```Shell
 	[root@localhost ~]# firewall-cmd --reload
 	```
-	12.接著修改root用戶可任意IP登入
+	12. 接著修改root用戶可任意IP登入
 	```MySQL
 	mysql> update mysql.user set host = '%' where user = 'root';
 	Query OK, 1 row affected (0.00 sec)
 	Rows matched: 1  Changed: 1  Warnings: 0
 	```
-	13.最後生效修改命令
+	13. 最後生效修改命令
 	```MySQL
 	mysql> flush privileges;
 	```
-9.yum install（極客大學）
+
+9. yum install（極客大學)
 	1. 安裝mysql-community-server，可以直接透過網路更新安裝。若在離線環境安裝，則要下載所需的rpm檔案，再用yum install *.rpm安裝。
 	2. 讓MySQL的開發環境與生產環境版本相同，若執行yum update，會把MySQL更新，導致後續版本不同的問題。執行yum remove mysql57-community-release-el7-10.noarch，將下載索引刪除，就不會隨時更新MySQL版本。
 	3. MySQL DBA需要特別注意
-	4.啟動MySQL，指令systemctl start mysqld.service，若成功，不會返回值
-	5.讓MySQL隨主機啟動開啟，指令systemctl enable mysqld，若成功，不會返回值
-	6.查詢目前mysql狀態，指令systemctl status mysqld.service，顯示active表示正在運作。
-	7.若安裝mariaDB則無法正常顯示，需執行過濾rpm -qa | grep -i 'mysql'，查看是安裝mariaDB或是MySQL社區版
-	8.若已經啟動多次，要查找安裝MySQL起始密碼，grep 'password' /var/log/mysqld.log | head -1只顯示第一行。
-	9.指令SHOW VARIABLES LIKE 'validate_password%'; 可查看密碼的安全設置。
-	10.指令set global validate_password_policy=0; 降低密碼的安全設置，接著可以設定較簡單的root密碼。
+	4. 啟動MySQL，指令systemctl start mysqld.service，若成功，不會返回值
+	5. 讓MySQL隨主機啟動開啟，指令systemctl enable mysqld，若成功，不會返回值
+	6. 查詢目前mysql狀態，指令systemctl status mysqld.service，顯示active表示正在運作。
+	7. 若安裝mariaDB則無法正常顯示，需執行過濾rpm -qa | grep -i 'mysql'，查看是安裝mariaDB或是MySQL社區版
+	8. 若已經啟動多次，要查找安裝MySQL起始密碼，grep 'password' /var/log/mysqld.log | head -1只顯示第一行。
+	9. 指令SHOW VARIABLES LIKE 'validate_password%'; 可查看密碼的安全設置。
+	10. 指令set global validate_password_policy=0; 降低密碼的安全設置，接著可以設定較簡單的root密碼。
     
-    
-    
-    
-
-
-
 
    ![](./res/image-filter.png)
 	
