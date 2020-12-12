@@ -164,9 +164,28 @@
 	
 03多種方式連接MySQL數據庫
 ====
+1. 連接方式，其他語言稱「連接器、綁定、binding」，Python稱「Python database API、DB-API」，MySQLdb是Python2，適用MYSQL5.5和Python2.7，不要對老系統做升級。
+2. Python3之裝MySQLdb包叫做mysqlclient，
+	```Shell
+	shell> pip install mysqlclient
+	python> import MySQLdb
+	```
+3. 其他DB-API，需要手動拼接SQL:
+	```Shell
+	pip install pymysql   #流行度最高
+	pip install mysql-connector-python #MySQL官方
+	```
+4. 使用ORM(Object Relational Mapping)，Django web也集成使用的方法。對原始的DB-API的擴充，需要先import 前邊的DB-API，為更高級的封裝
+	```Shell
+	pip install sqlalchemy
+	```
+5. 打開mod3_pymysql_conn.py。
+6. 打開mod3_sqlalchemycore_conn.py
+	1. create_engine中echo=True是開發環境調式用。
+	2. 創建元數據，例如一本圖書，頁數、標題、作者、分類，先對數據做初始化。
 	
 
-
+	
 	
 	
 
