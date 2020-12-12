@@ -30,7 +30,7 @@
 		//5. 驗證網卡配置，進入network-scripts找到ifcfg-ens33網卡配置文件
 		[root@localhost ~]# cd /etc/sysconfig/network-scripts  
 		[root@localhost network-scripts]# ls -a 
-		[root@localhost network-scripts]# vi ifcfg-ens33
+		[root@localhost network-scripts]# vi ifcfg-ens33   //若安裝桌面版，檔名可能是ifcfg-enp0s3
 		//6. 按I進入insert模式，把onboot的值改為yes, 再按esc後輸入:wq關閉文件
 		//7. 重新啟動CentOS
 		[root@localhost network-scripts]# reboot
