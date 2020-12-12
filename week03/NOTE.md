@@ -72,6 +72,36 @@
 	//可改用
 	set password=password('NewPassWord!');
 	```
+	
+	8.遠端連接MySQL設定，外部連接需開啟防火牆MySQL預設3306 Port，檢視3306 Port是否開啟
+	```Shell
+	[root@localhost ~]# firewall-cmd --query-port=3306/tcp
+	no
+	```
+	目前3306為關閉狀態，需開啟外部才可連接MySQL
+	9.開啟指令
+	```Shell
+	[root@localhost ~]# firewall-cmd --zone=public --add-port=3306/tcp --permanent
+	```
+	10.關閉指令
+	```Shell
+	[root@localhost ~]#  firewall-cmd --zone=public --remove-port=3306/tcp --permanent
+	```
+	11.設定好後重啟防火牆
+	```Shell
+	[root@localhost ~]# firewall-cmd --reload
+	```
+	12.接著修改root用戶可任意IP登入
+	```MySQL
+	mysql> update mysql.user set host = '%' where user = 'root';
+	Query OK, 1 row affected (0.00 sec)
+	Rows matched: 1  Changed: 1  Warnings: 0
+	```
+	13.最後生效修改命令
+	```MySQL
+	mysql> flush privileges;
+	```
+	14.使用MySQLWorkbench來測試連接
 
 
 
