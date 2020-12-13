@@ -183,7 +183,200 @@
 6. 打開mod3_sqlalchemycore_conn.py
 	1. create_engine中echo=True是開發環境調式用。
 	2. 創建元數據，例如一本圖書，頁數、標題、作者、分類，先對數據做初始化。
-	
+7. 回到mysql主機，查看新增的db
+	```Shell
+	mysql> use testdb;
+	mysql> show tables;
+	mysql> show create table book;
+	mysql> show create table author;
+	```
+8.轉變成ORM的方式，打開mod3_orm_conn.py，使用ORM必須滿足的四個要求。
+	1.創建base必須繼承自declarative_base()
+	2.創建表時，可用class做指定，__tablename，必須用雙下畫線
+	3.包含一個或多個屬性column
+	4.必須要有一個主鍵primary_key
+	5.使用ORM當客戶要求增加新屬性時，直接在class中新增即可，產生錯誤較低。
+	6.規範寫法中，import要寫在最上面。
+	7.created_on創建時間，updated_on更新時間
+	8.dburl這裡指定字符集，避免設定字符出錯，?charset=utf8mb4；
+	9.create_enging連接時用utf-8
+	10.Base.metadata.create_all(engine)對於引擎進行執行
+9.回到mysql
+	```Shell
+	mysql> show tables;
+	mysql> show create table authororm ;
+	//列出ORM如何創建table
+	```
+
+04必要的ＳＱＬ知識
+====
+1. 功能劃分：
+	1. DQL, 數據查詢語言，開發工程師學習的重點
+	2. DDL, 數據定義語言 ，庫和表結構
+	3. DML, 操作表中紀錄 
+	4. DCL, 控制語言，安全和訪問權限控制
+2. 創建表之前，要確認表是否存在，否則會報錯。使用反引號，因為名稱有可能出現單引號，故以此作區別，與ＭySQL保留字段作區別。不用儲存emoji表情，所以使用utf8。
+3. 創建數據表的個數，愈少愈好，簡潔愈好。字段愈少愈好，相互獨立。字段的值不建議是由其他字段計算出，會增加冗余和降低檢索效率。
+4. 表聯合主鍵的字段也是愈少愈好，聯合主鍵愈多，索引查詢運行的時間愈大。
+5. 外鍵應該用嗎？如果對內部系統，只需關注正確性可用外鍵；若外部，則是在應用層解決，許多大廠，不允許外鍵在內部系統用，否則會造成內容更新的阻塞。要求正確性大於性能，可用外鍵，若是併發系統，外鍵要通過應用的業務層和邏輯層做解決。
+6. 如何進行查詢？
+	1. SELECT查詢時關鍵字順序
+	2. SELECT … FROM … WHERE … GROUP BY … HAVING … ORDER BY … LIMIT
+		i. 生產環境下因為列數相對較多，一般禁用SELECT
+		ii. ＷHERE字段為避免全表掃描，一般需增加索引。
+	3. 執行順序是FROM>WHERE
+7. 打開table.sql
+	1. SELECT DISTUNCT book_id, book_name, count(*) as number  #5
+	2. FROM book JOIN author ON book.sn_id = author.sn_id   #1執行順序，產生新的虛擬表
+	3. WHERE pages > 500                ＃2執行順序
+	4. GROUP BY book.book_id        ＃3排序 
+	5. HAVING number > 10             ＃4 輸大於10
+	6. ORDER BY number                    #6
+	7. LIMIT 5                    #7取前五個
+
+05使用聚合函數匯總數據
+====
+1. SQL函數有哪些？算數、字符串、日期、轉換、聚合（匯總表的數據）
+2. 聚合函數：COUNT()行數、MAX()最大值、MIN()最小值、SUM()求和、AVG()平均值
+3. 輸入的是一組數據的集合，輸出單個值，忽略空行
+4. 打開mysql，打開db1範例數據庫
+```Shell
+mysql> show databases
+mysql> user db1 ; 
+mysql> select * from t1 limit 5 \G
+
+```
+5. id 是自增的主鍵，short 評等，n_star星級
+```Shell
+mysql> select count(*) from t1 ;   #可查詢總共有570條紀錄，可能包含空值
+select count(*), avg(n_star), max(n_star) from t1 where id < 10 ;   #多少條，平均星級，最大星級是多少
+```
+6. 用group by 看每個星級的數量
+```shell
+mysql> SELECT count(*) , n_star from t1 group by n_star
+```
+7. Where增加過濾，Group by 進行分組，分組後也可以過濾，但要改用having。Ｗhere過濾指作用於每一行，having則作用於分組。
+```shell
+mysql> selec count(*), n_star from t1 group by n_star having n_star > 3 order by n_star DESC;
+```
+8. Count(*)會忽略空行，要特別注意。
+
+06多表操作用到的子查詢和join關鍵字解析
+====
+1. 須從查詢結果集中再次進行查詢，才能得到想要的結果。猶如for循環
+非關聯，for裡面沒有for：關聯子查詢，for裡面有for。
+```Shell
+mysql> select count(*) , n_star from t1 group by n_star having n_star > 3 order by n_star desc;  
+#使用平均星級查詢，條件嵌套，裡面的只做一次，稱為非關聯子查詢
+mysql> SELECT avf(n_star) from t1; 
+mysql> SELECT COUNT(*), n_star FROM t1 GROUP BY n_star HAVING n_star > (SELECT avg(n_star) FROM t1) ORDER BY n_star DESC ; 
+
+```
+2. 關聯子查詢，通常特過DBA執行，常用EXIT IN 小表驅動大表。
+```Shell
+mysql> TABLE_A TABLE_B \c
+mysql> SELECT * FROM TABLE_A WHERE condition IN (SELECT condition FROM TABLE_B) \c
+mysql> SELECT * FROM TABLE_A WHERE EXIT (SELECT condition FROM B WHERE B.condition=A.condition) \c
+```
+轉成python，如下邏輯：
+```Python
+for I in TABLE_B:
+	for j in TABLE_A:
+		if TABLE_B.condition == TABLE_A.condition:
+			…
+
+```
+3. 常用JOIN聯集有哪些？前三種較常用
+	1. INNER JOIN
+	2. LEFT JOIN
+	3. RIGHT JOIN
+	4. FULL OUTER JOIN，對mysql並不支持，若要用則用UNION
+	5. ….
+
+07事務的特性和隔離級別
+====
+1. 事務：要麼全執行，要麼不執行，例如：購物流程中最關鍵的是，是否付款，是否清空購物車。
+2. 事務的特性ACID
+	1. 原子性（不可分割）atomicity
+	2. 一致性consistency
+	3. 隔離性isolation
+	4. 持久性durability
+3. 事務隔離級別SQL92的標準
+	1. 讀未提交：允許讀到未提交的數據 //當ＡＢ兩個事務，在操作同一個內容時，Ａ可以讀到Ｂ尚未提交的內容；Ａ讀取到一半，Ｂ退回，Ａ會讀到無意義的中間內容。
+	2. 讀已提交：只能讀到已經提交的內容 //事務Ｂ已完成，事務Ａ才有辦法讀到。
+	3. 可重複讀：同一事物在相同查詢條件下兩次查詢得到的數據結果一致   //常與讀已提交混淆，兩次查詢間，內容已被更改，所以兩次結果會不同。若要相同條件，查詢內容皆一致，則要設為可重複讀。
+	4. 可串行化：事務進行串行化，但是犧牲了併發性能
+4. 數據是自動提交的，如何控制是否自動提交？默認自動提交，專業術語稱『隱式提交』，若為oracle的資料庫則默認需要手動提交。
+```Shell
+mysql> show variables like 'autocommit';
+mysql> set autocommit=0 ;
+mysql> show variables like 'autocommit' ;
+```
+5. 手動提交，若要開啟一個事務，則以BEGIN開始，COMMIT結束。
+6. 假設清空購物車後要做付款時，取消付款，則要做回滾ROLLBACK，回到BEGIN狀態。
+7. 一個事務可以有多個保存點，用ROLLBACK回到保存點。
+8. 隔離級別愈低，產生異常愈多。讀未提交，級別低，但更有效共享資源。
+
+08PyMySQL的增刪改查操作演示
+====
+1. 開啟mod3_pymysql_conn.py，一般查詢都要遵循的四個步驟
+	1. 導入第三方庫import pymysql
+	2. 建立連接pymysql.connect() 配置項目通常會另外寫配置文件內
+	3. 執行sql語句，使用with會自行關閉數據庫，若用open，則要記得cursor.close()
+	4. 關閉數據庫
+2. 打開mod3_pymysql_insert.py，插入
+	1. 建立連接後，執行insert，value用%s插入指定字段，這裡無論是否為數字都是%s佔位符。sql語句可以用單引號或是三引號的方式。
+	2. 用.excute()將sql與value語句做拼接。直到執行db.commit()之後，才會將數據寫進去。
+	3. 雖然mysql預設隱式提交，但使用pymysql時，是顯式提交。若用SQLalchemy則不需要手動commit()，已經寫成隱式提交。
+	4. print(cursor.rowcount) 非表中有多少行數，而是現在輸入幾行資料到數據庫。
+	5. 進到mysql查看輸入的狀況
+
+	```Shell
+	mysql> select * from book ;
+	//可看到數據庫有哪些紀錄
+	```
+3. 打開mod3_pymysql_query.py，查詢功能：
+	1. cursor.fetchall()取出匹配的所有行，取出來是元祖tuple類型。
+	2. .fetchone()取出一行，結果集當中的一行
+4. 打開mod3_pymysql_update.py，更新功能：
+	1. 依照sql語句的邏輯，應該將id與where的位置調換，才會更新成功。
+5. 打開mod3_pymysql_delete.py，刪除功能：
+	1. 用cursor.rowcount返回值的方式，確認數據庫操作是否成功，並且結果是否符合預期。
+
+09多文件插入＆如何設計一個良好的數據庫連接配置文件
+====
+1. 打開mod3_pymysql_insertmany.py，
+	1. 用tuple嵌套的方式將兩筆value總成一個values，使用cursor.excutemany(sql, values)
+	2. 將server設置提取出來，需考慮Unix或linux設計的思維，linux會將用戶名與密碼放在/etc/passwd的文件中，根據文件的固定格式，分割出不同字段。
+	3. 存放mysql配置文件
+	4. 若配置要連接網路設置多個節點，則不會將配置存放到文件中。
+	5. 目前流行ini格式儲存配置文件，其他有yaml或json格式。打開config.ini
+	6. 如何設計前邊固定的名稱？可參考pymysql.connect()對應的參數，來設定ini配置的變數名稱，意義更明確，順序也可以發生變化。
+		i. 配置文件可讀性
+		ii. 簡單明確，直到要填寫得內容
+		iii. 配置之所以存到文件，是為了文件型的儲存更加穩定，若要給集群或多機使用，要使用一些配置的數據庫服務器。經常在微服務看到配置服務。
+		iv. 用關鍵字讀取名字，而不是直接按照順序寫入
+2. 打開dbconnect.py
+	1. 通過字典dict()的形式，將配置讀入connect()。
+	2. 打開dbconfig.py
+	3. 其中用ConfigParser()將filename讀取，再用.items(section) 抓[mysql]底下的內容為list()，其中是包含許多tuple，所以要用dict()轉為字典的形式。
+
+10使用SQLAlchemy插入數據到ＭySQL數據庫
+====
+1. 打開mode3_orm_insert.py
+2. 方便查看的模式方法__repr__
+3. ＯＲＭ三層結構，
+	1. 業務邏輯層：抽象話，就不須關心數據庫層。直接編輯需要哪些表就好。
+	2. 持久層：對數據庫更高效的訪問，SQLalchemy完成ORM
+	3. 數據庫層：通過持久層映射到業務層
+4. 缺點是需要實體化表，session轉化成SQL語言，其過程也會造成性能的損耗。優點是關心業務層，與底層分開。缺點，抽象並不能覆蓋所有底層功能。複雜的查詢還是得回到原始的SQL。
+5. 跟DBA打交道，需要用SQL溝通。
+6. Django使用MTV架構，model模型也是一個ORM，Django用model與數據庫操作。
+7. 列的類型Float Decimal Boolean Text, autoincrement（自動增長），使用前記得import相應的數據庫
+8. 約束 primary, nullable, default, 
+9. 創建session（會話），底層架構是確認對象的表和主鍵。自己還維護一個事務，一直保持打開的狀態，一直到會話提交或是回滾。
+10. sessionmaker是一個工廠模式，先記成是一個固定的書寫模式 。將session=SessionClass()理解為開始一個事務。
+
 
 	
 	
