@@ -377,6 +377,110 @@ mysql> show variables like 'autocommit' ;
 9. 創建session（會話），底層架構是確認對象的表和主鍵。自己還維護一個事務，一直保持打開的狀態，一直到會話提交或是回滾。
 10. sessionmaker是一個工廠模式，先記成是一個固定的書寫模式 。將session=SessionClass()理解為開始一個事務。
 
+11使用SQLAlchemy查詢MySQL(上)
+====
+1. 打開mod3_orm_insert.py，查詢操作直接更換sesson.add(book_demo)的add部分。
+2. 除了commit()，也有flush()但當前的事務會繼續保持連接，並沒有被寫入數據庫。使用flush()後，還是要用commit()。
+3. 查詢用session.query(book_table)，只執行這個僅返回空的，要用session.query(book_table).all()，才會返回所有結果。將結果附值到變數result中，再print(result)。
+4. 獲取其中一個值，把.all()改成.first()。
+5. 用迭代而非all的方式，for result in session.query(Book_table): print(result)
+6. 除了first()，另有兩個相似的function。one() 查詢所有行，如果結果不是單獨一個，就會異常；schalar()返回第一個結果的第一個元素，要確保資料庫只有一行，才能用，否則常會顯示異常。
+7. 控制指定列數，session.query(book_table.book_name),first()，指定查詢表中book_name那一列。
+8. 排序，
+```Python
+from sqlalchemy import desc
+for result in session.query(Book_table.book_name, Book_table.book_id).order_by(desc(Book_table.book_id)): 
+	print(result)
+```
+9. 排序、限制返回結果
+```Python
+query = session.query(Book_table).order_by(desc(Book_table.book_id)).limit(3)
+print([result.book_name for result in query])
+```
+
+12使用SQLAlchemy查詢MySQL(下)
+====
+1. 聚合函數多行彙總
+```Python
+from sqlalchemy import func
+result = session.query(func.count(Book_table.book_name)).first()
+print(result)   #獲得一個元祖tuple
+session.commit()
+```
+2. filter語句(SQL中的where)，
+```Python
+print(session.query(Book_table).filter(Book_table.book_id < 20).first())
+```
+3. 更複雜的形式
+```Python
+filter(Book_table.book_id > 10, Book_table.book_id < 20)
+from sqlalchemy import and_, or_, not_    #若沒有用_，可能會跟其他functionr衝突，用到甚麼，就import甚麼。
+filter(
+	or_(
+		Book_table.xxx.between(100, 1000), 
+		Book_table.yyy.contains('book')
+	)
+)
+session.commit()
+```
+
+13使用SQLAlchemy更新和刪除MySQL
+====
+1. 更新用update()，
+```Python
+query = session.query(Book_table)
+query.filter(Book_table.book_id == 20)
+query.update({Book_table.book_name: 'newbook'})
+new_book = query.first()
+print(new_book.book_name)
+
+```
+2. 刪除數據delete()，不接收參數
+```Python
+query = session.query(Book_table)
+query.filter(Book_table.book_id == 19)
+session.delete(query.one()) 
+
+#就地刪除，不用查詢再刪除的方法
+query = session.query(Book_table)
+query.filter(Book_table.book_id == 18)
+query.delete()
+print(query.first())
+```
+
+```mysql
+mysql> select * from bookorm;  //查看刪除的結果
+```
+	
+14使用連結池&數據庫建立連接的過程
+====
+1. 打開mod3_conn_pool.py，引用pip3 install DBUtils
+```Python
+from dbutils.pooled_db import PooledDB  #多線程數據連接，就要用這樣一個包
+
+```
+2. PooledDB()封裝了之前用的connect()，可看他是如何封裝先前的功能
+3. 關鍵參數可用dict()命名，再用**db_config將內容導入
+4. 最大連接池限制，節省效能
+5. 創建空閒連接，時間換空間，初始連接直接創建空閒，客戶端TCP建立連接後在內存空間保存已經建立連接的狀態，服務端占用更多描述符。
+6. 最多空閒連接，釋放掉峰值之後產生過多的連接
+7. 重複使用的次數，避免內存洩漏，如果多次使用，內存無法釋放。線程銷毀，再重新建立。
+8. 沒有連接可用時，是否進行阻塞。
+	1. True等待，盡可能讓用戶請求成功；False不等待然後報錯
+9. 根據硬件配置，做連接數大小的設置
+10. spool = PooledDB()，後續用法是跟先前相同的，只是連接前先做設置。
+
+15優化數據庫使用的基本原則
+====
+1. 調優不是萬能，依據業務需求作調優，提升硬件配置，而不是壓榨性能
+	1. CPU
+	2. 內存
+	3. 網路連接
+2. 第一次效果最明顯
+3. 有體系調整，不是發現一個參數可以調就試一試
+4. 打開阿里巴巴Java的開發手冊
+	1. 參考開發手冊，找到符合業務需求的規則，需要完整看規約與準則。
+	2. 增加監控系統，當業務遇到瓶頸時，再做調優。
 
 	
 	
