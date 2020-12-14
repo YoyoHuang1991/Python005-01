@@ -122,9 +122,14 @@
 2. 查看校對規則，show variables like 'collection_%'
 3. Utf8不是utf-8字符集，若變成亂碼，不能修復，學會查看字符集。
 4. 也可用navicat字符集管理工具。
-5. Linux預設utf8，編輯設定檔，指令:set nu進入編輯
+5. Linux預設utf8，編輯設定檔，
 	```Shell
 	vim /etc/my.cnf
+	#指令:set nu進入編輯，並輸入以下文字
+	[client]
+	default_character_set = utf8mb4
+	[mysql]
+	default_character_set = uft8mb4	
 	```
 7. [client] default_character_set = uft8mb4，與uft8有何區別？
 8. ASCII通常占一個字節，LATIN, GBK微軟內建
