@@ -195,18 +195,20 @@
 	mysql> show create table book;
 	mysql> show create table author;
 	```
-8.轉變成ORM的方式，打開mod3_orm_conn.py，使用ORM必須滿足的四個要求。
-	1.創建base必須繼承自declarative_base()
-	2.創建表時，可用class做指定，__tablename，必須用雙下畫線
-	3.包含一個或多個屬性column
-	4.必須要有一個主鍵primary_key
-	5.使用ORM當客戶要求增加新屬性時，直接在class中新增即可，產生錯誤較低。
-	6.規範寫法中，import要寫在最上面。
-	7.created_on創建時間，updated_on更新時間
-	8.dburl這裡指定字符集，避免設定字符出錯，?charset=utf8mb4；
-	9.create_enging連接時用utf-8
-	10.Base.metadata.create_all(engine)對於引擎進行執行
-9.回到mysql
+8.轉變成ORM的方式，打開mod3_orm_conn.py，使用ORM必須滿足的四個要求:</br>
+1. 創建base必須繼承自declarative_base()</br>
+2. 創建表時，可用class做指定，__tablename，必須用雙下畫線
+1. 包含一個或多個屬性column
+1. 必須要有一個主鍵primary_key
+1. 使用ORM當客戶要求增加新屬性時，直接在class中新增即可，產生錯誤較低。
+1. 規範寫法中，import要寫在最上面。
+1. created_on創建時間，updated_on更新時間
+1. dburl這裡指定字符集，避免設定字符出錯，?charset=utf8mb4；
+1. create_enging連接時用utf-8
+1. Base.metadata.create_all(engine)對於引擎進行執行
+	
+9.回到mysql:
+
 	```Shell
 	mysql> show tables;
 	mysql> show create table authororm ;
@@ -244,7 +246,8 @@
 1. SQL函數有哪些？算數、字符串、日期、轉換、聚合（匯總表的數據）
 2. 聚合函數：COUNT()行數、MAX()最大值、MIN()最小值、SUM()求和、AVG()平均值
 3. 輸入的是一組數據的集合，輸出單個值，忽略空行
-4. 打開mysql，打開db1範例數據庫
+4. 雖然以ssh遠端連到virtualbox的centOS可以成功，但是vs code使用pymysql.connect()時，卻一直遇到1045 access denied，所以放棄連線virtualbox上mysql的方式。改用xampp的mariaDB，並用workbench軟體連線mariaDB，執行sql並創建範例數據庫。
+5. 打開mysql，打開db1範例數據庫
 ```Shell
 mysql> show databases
 mysql> user db1 ; 
