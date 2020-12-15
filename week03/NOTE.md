@@ -227,8 +227,8 @@
 6. 如何進行查詢？
 	1. SELECT查詢時關鍵字順序
 	2. SELECT … FROM … WHERE … GROUP BY … HAVING … ORDER BY … LIMIT
-		i. 生產環境下因為列數相對較多，一般禁用SELECT
-		ii. ＷHERE字段為避免全表掃描，一般需增加索引。
+		1. 生產環境下因為列數相對較多，一般禁用SELECT
+		2. ＷHERE字段為避免全表掃描，一般需增加索引。
 	3. 執行順序是FROM>WHERE
 7. 打開table.sql
 	1. SELECT DISTUNCT book_id, book_name, count(*) as number  #5
