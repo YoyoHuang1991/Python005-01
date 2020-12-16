@@ -276,7 +276,7 @@ mysql> selec count(*), n_star from t1 group by n_star having n_star > 3 order by
 ```Shell
 mysql> select count(*) , n_star from t1 group by n_star having n_star > 3 order by n_star desc;  
 #使用平均星級查詢，條件嵌套，裡面的只做一次，稱為非關聯子查詢
-mysql> SELECT avf(n_star) from t1; 
+mysql> SELECT avg(n_star) from t1; 
 mysql> SELECT COUNT(*), n_star FROM t1 GROUP BY n_star HAVING n_star > (SELECT avg(n_star) FROM t1) ORDER BY n_star DESC ; 
 
 ```
