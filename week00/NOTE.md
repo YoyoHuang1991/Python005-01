@@ -53,7 +53,69 @@ git remote set-url orgin https://github.com/YoyoHuang1991/gitworkflow.git
 # 若都沒反應時，可以用
 git remote add origin https://github.com/YoyoHuang1991/gitworkflow.git
 ```
-asdfasdflajsdlfjlaskjdfklj
+
+3 版本控制練習Git Branch
+====
+1. 在資料夾中新增明為index.html的檔案，在裡面寫入Hello world。
+2. 在cmd中查看目前該資料夾中變動的檔案，並加為要commit的檔案，再commit到目前的branch 'main'之中。
+```Shell
+git status
+git add index.html
+git commit -m "新增index.html檔案"
+```
+3. 新增一個branch "testingVersion"，並從main轉到該branch中
+```
+git branch testingVersion
+git checkout testingVersion
+```
+4. 現在繼續編輯index.html檔案，在第二行中寫上任意文字，例如: "I love Taichung"，儲存後關閉。
+5. 將目前的狀態commit到branch testingVersion中。
+```Shell
+git status #查看index.html為紅字，表示已經變動
+git add index.html #指定單一檔案加入commit
+git add -a #加入所有變更的檔案 
+git commit -m "在testingVersion中更新index.html"
+```
+6. 轉換回branch main，這時查看index.html的檔案，方才新增的文字"I love Taichung"已不見，因為在branch main的時間點仍存在最後一次commit到main的狀態。
+```Shell
+git checkout main  #轉回main，方才新增的文字不見
+git checkout testingVersion #轉回testingVersion，方才新增的文字又出現
+```
+7. 若測試版本已經沒問題，要將testingVersion變動的內容merge融入main主要版本時，可以用以下指令
+```Shell
+git checkout main #先回到主要版本branch
+git merge testingVersion #便能將testingVersion變動的內容合併
+```
+8. 上傳到github，若遠端發現使用者目前要上傳的branch與遠端不同，例如: testingVersion傳到main，則會反錯，要求先做merge，而不會逕行上傳，導致版本混亂。
+```Shell
+git checkout testingVersion #轉到testingVersion
+git push origin testingVersion  #push時，指定到testingVersion的branch。
+
+```
+
+c. .git reset app/index.html 刪除個別檔案
+
+	5. 透過github 來merge branch
+		a. .git branch count-to-fifteen
+		b. 繼續編輯html <li>~13</li>
+		c. .git commit -am "counted to 13"
+		d. .git push origin count-to-fifteen
+		e. 繼續編輯html <li>~15</li>
+		f. .git commit -am 'Completed the count to 15.' 
+		g. .git push origin count-to-fifteen
+		h. 到github看到方才的push，右邊有compare& pull requests, 即是merge的功能
+		i. merge前可以留下意見給其他開發者，assignees選擇自己，往下拉pull request
+		j. 顯示we're going to merge 2 commits into master from count-to-fifteen
+		k. Click merge pull requests. 再點confirm，完成merge後，可以選delete branch，將count-to-fifteen branch刪除。
+		l. 在terminal 輸入 git checkout master，電腦端這邊仍只顯示1~10，尚未更新
+		m. .git pull origin master ，local方能更新
+		n. .git branch可以列出local有的branches，執行git branch -d count-to-fifteen刪除指定的branch
+		o. 在html中刪除多餘的文字，git commit -am 'Removed test numbers.'更新到master branch中
+		p. 其他"branch"的主題
+			i. '--no-ff' merge option
+			ii. How to handle merge conflicts
+		q. .git checkout -b our-features,  新增一個branch叫our-features，並將目前選擇的branch轉到新增的branch
+
 
 	
 	
