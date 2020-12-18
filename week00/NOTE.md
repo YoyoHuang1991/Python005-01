@@ -17,12 +17,9 @@
    8. git log 可以查看commit的時間歷程
 
 3. 將本地倉庫同步到遠程github倉庫
-   1. 在github網頁版新增repository新增repos，並複製ssh連結
-   2. 在本地倉庫的路徑下，git remote add origin git@github.com:….git
-   3. ssh-keygen -t rsa -C "a5339577@gmail.com"
-   4. 使用默認的金鑰名稱
-   5. ssh -T git@github.com 查看是否已經連接
-   6. git push -u origin master上傳
+   1. 在github網頁版新增repository新增repos，並複製http連結
+   2. 在本地倉庫的路徑下，git remote add origin https://github.com/YoyoHuang1991/.....git
+   3. git push -u origin master上傳
 
 4. 訓練營提交作業的完整流程
    1. Fork是不影響原本程式碼的情況下，複製到自己的github空間。
@@ -90,31 +87,43 @@ git merge testingVersion #便能將testingVersion變動的內容合併
 ```Shell
 git checkout testingVersion #轉到testingVersion
 git push origin testingVersion  #push時，指定到testingVersion的branch。
+```
+9. commit反悔怎麼辦? 以下練習建議在branch testingVersion中嘗試。
+```Shell
+git log --oneline testing
+#顯示該branch的log紀錄，到最底端可以輸入儲存的檔名，將log備份，或直接按ctrl+c可以退出log
+6d39669 (HEAD -> testing, origin/main, main) <E5><88><AA>
+d540784 (master) in the main
+000cfd7 week00 updated
+7ffd549 <E6><96><B0><E5><A2><9E>week03 homework
+dd84609 Update Homework.md
+d9484a0 Update Homework.md
+(END)
+```
+目前的最新commit狀態是在第一行6d39669，可以用以下指令用"相對"或"絕對"的方式退到想到的時點。 
+```Shell
+git reset HEAD^ #由最新的點往後退，HEAD為最新、^箭頭是上一個，
+git reset HEAD^^ #退回前兩個，^愈多，退愈多次
+git reset testing^^ #testing試只branch名稱，
 
+git reset 7ffd549 #絕對時點，直接寫log第一欄的代碼
+git reset 7ffd549^ #從絕對時點往前退
 ```
 
-c. .git reset app/index.html 刪除個別檔案
-
-	5. 透過github 來merge branch
-		a. .git branch count-to-fifteen
-		b. 繼續編輯html <li>~13</li>
-		c. .git commit -am "counted to 13"
-		d. .git push origin count-to-fifteen
-		e. 繼續編輯html <li>~15</li>
-		f. .git commit -am 'Completed the count to 15.' 
-		g. .git push origin count-to-fifteen
-		h. 到github看到方才的push，右邊有compare& pull requests, 即是merge的功能
-		i. merge前可以留下意見給其他開發者，assignees選擇自己，往下拉pull request
-		j. 顯示we're going to merge 2 commits into master from count-to-fifteen
-		k. Click merge pull requests. 再點confirm，完成merge後，可以選delete branch，將count-to-fifteen branch刪除。
-		l. 在terminal 輸入 git checkout master，電腦端這邊仍只顯示1~10，尚未更新
-		m. .git pull origin master ，local方能更新
-		n. .git branch可以列出local有的branches，執行git branch -d count-to-fifteen刪除指定的branch
-		o. 在html中刪除多餘的文字，git commit -am 'Removed test numbers.'更新到master branch中
-		p. 其他"branch"的主題
-			i. '--no-ff' merge option
-			ii. How to handle merge conflicts
-		q. .git checkout -b our-features,  新增一個branch叫our-features，並將目前選擇的branch轉到新增的branch
+10. 透過網頁github 來merge branch
+*  打開網頁
+   1. github看到方才的push，右邊有compare& pull requests, 即是merge的功能
+   2. merge前可以留下意見給其他開發者，assignees選擇自己，往下拉pull request
+   3. 顯示we're going to merge 2 commits into master from count-to-fifteen
+   4. Click merge pull requests. 再點confirm，完成merge後，可以選delete branch，將count-to-fifteen branch刪除。
+*  打開cmd或terminal
+   1. 在terminal 輸入 git checkout master，電腦端這邊仍只顯示1~10，尚未更新
+   2. git pull origin master ，本機端方能更新
+   3. git branch可以列出本機端有的branches
+   ```Shell
+   git branch -d testingVersion #刪除指定的branch
+   ```
+11. 關於git merge --no-ff的主題，可參閱下網站https://medium.com/@fcamel/%E4%BD%95%E6%99%82%E8%A9%B2%E7%94%A8-git-merge-no-ff-d765c3a6bef5
 
 
 	
