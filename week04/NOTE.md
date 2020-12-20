@@ -270,6 +270,105 @@ def year(request, year):
 
 09使用ORM創建數據表
 ====
+1. 非直接操作數據庫，對象提取
+2. 繼承自models.Model, 設計table, 相對應SQL的語言
+3. 正向操作，manage.py makemigration 與migrate將ORM表轉成SQL。
+4. AutoField自動增值
+5. python manage.py會顯示需要做哪些指令做處理
+6. Python manage.py makemigration 後，在目錄migrations會出現0001開頭的文件，作為修改SQL的文件，即為中間腳本
+7. 運行時若發現找不到MySQL配置，須到整個project根目錄的__init__.py中配置，該文件在runserver時，都會先被運行。
+import pymysql 
+pymysql.install_as_MySQLdb() #替換資料庫
+8. 若仍找不到，在terminal手動將MySQL加入搜索路徑 export PATH=$PATH:/usr/local/mysql/bin
+9. 若遇到sql版本與decode報錯，也是追尋code將其註釋掉。
+10. 在terminal登入MySQL, 查看創建的結果
+
+10ORMAPI
+====
+1. 到django官方文檔認識字串、浮點數、日期等幾個常用的table欄位屬性
+2. Django驗證ORM語句的shell, 打開ORM_API.txt
+3. Python manage.py shell可打開練習用python 做數據的增刪改查
+
+14urlconf與models配置
+====
+1. 是否要製作獨立的app? 
+   * https://ip/xxx
+   * https://ip/yyyy
+   * https://ip/douban/www
+   * https://ip/douband/yyyy
+   * 為douban新建一個app
+2. 實際操作
+```python
+>>> python manage.py startapp Douban
+#打開setting.py，將'Douban'註冊到INSTALLED_APPS列表中
+#當runserver時，會將app加載進來
+
+#打開urls.py   
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('index.urls')),
+    path('douban/', include('Douban.urls'))  #Douban後面要加上/，但前面不可以加上/，否則路徑拼接時，會報錯。
+    #include()函數會透過install_app的列表，找到urls.py的位置。
+]
+# 當網頁執行https://ip:port/douban/index後會找到douban底下的urls.py，路徑為'index'的做匹配
+path('index', views.books_short), 
+```
+3. 藉由以上方法，可以在一個project下新增不同的app，不用擔心app之間的路徑重複的問題
+4. urls.py如何確保找到的是當前app的views? 是在from . import views，確保import只從當前目錄下找views.py。
+5. 打開douban底下的views.py。
+```python 
+#如何抓取數據? 表的結構與內容是已經創建好的，如何反向創建模型
+python manage.py inspextdb > models.py
+#mysql中指定的表轉換成model，並輸出到文件
+#其中會多產生一個class Meta  元數據，其中內容並不屬於表中任一條紀錄
+class Meta: 
+    managed: False  #默認為true，方可用orm指令做數據庫的變更，由於是SQL轉過來的，django為避免更動到SQL的內容，所以預設為false。若是我們自己用ORM創建的數據庫則沒有設定這個選項，且預設為True
+    db_table = 't1' #預設是"app名+下畫線+類的名字"做為表名，例如:Douban_T1。由於是SQL轉來的，會設定為原本的t1名稱。
+```
+6. mysql配置連接，打開settings.py中的DATABASES的列。
+
+15views視圖的編寫
+====
+1. 導入模型，打開douban底下的views.py 
+```python
+from .models import T1 #即是透過SQL反向建立的模型
+
+def books_shor(request):
+    shorts = T1.objects.all()   #.objects()為模型的管理器
+
+```
+2. 要如何從SQL抓取需要的結果? 一般會先到mysql中，用SQL語句查看內容，根據結果寫成ORM管理器中對應語法。
+4. 打開terminal: /usr/loca/mysql/bin/mysql -uroot -ppassword db1，通常以此進入
+```mysql
+show tables;
+desc t1;
+<!-- 先了解是甚麼結構、欄位類型 -->
+select * from t1 limit 2\G
+
+```
+5. 編寫views，先打開django文檔說明，模型層的QuerySet
+```python
+#檢索全部對象
+all_entries = Entry.objects.all() #此類型為QuerySet，像是dict()，可用python標準語句，如count()
+plus = queryset.filter(**conditions).count()  #過濾器，包含給定查詢參數，判斷條件格式**conditions是要求dict()有key有value的格式
+queryset = T1.objects.values('sentiment')
+conditions = {'sentiment__gte':0.5}  #__gte為大於等於，常見gt大於、lt小於、gte、lte大於等於、小於等於
+```
+6. 聚合函數找平均星等，找到django官方文檔，需要用到avg函數。
+```python
+star_avg = f" {T1.objects.aggregate(Avg('n_star'))['n_star__avg']:0.1f} "
+#aggregate返回的是dict()，用['n_star__avg']抓取結果值；:0.1f是f-string的功能，顯示小數一位
+```
+
+16結合bootstarp模板進行開發
+====
+1. 打開templates目錄與static底下的css等目錄。
+2. 找到starbootstrap.com 
+3. 珊格系統
+4. 在views.py中，locals()會將當前函數下所有屬性進行加載
+5. {{block.super}}，可將父級的內容進行保留、加載進來，否則會被覆寫。
+
+
 
 
 
