@@ -52,9 +52,9 @@ BASE_DIR = os.path.dirname() #讀取路徑的基本套路
     DATABASES = {
         'default': {  #默認第一個數據庫可以命名為default, 若多個數據庫，其他要用有意義的命名。
             'ENGINE': 'django.db.backend.mysql',
-            'NAME': 'test', 
+            'NAME': 'test',
             'USER': 'root',
-            'PASSWORD': 'rootroot', 
+            'PASSWORD': 'rootroot',
             'HOST': '127.0.0.1',
             'PORT': '3306',
         }
@@ -62,9 +62,9 @@ BASE_DIR = os.path.dirname() #讀取路徑的基本套路
     DATABASES = {
         'db1': {  #默認第一個數據庫可以命名為default, 若多個數據庫，其他要用有意義的命名。
             'ENGINE': 'django.db.backend.mysql',
-            'NAME': 'mydatabase', 
+            'NAME': 'mydatabase',
             'USER': 'mydatabaseuser',
-            'PASSWORD': 'mypassword', 
+            'PASSWORD': 'mypassword',
             'HOST': '127.0.0.1',
             'PORT': '3307',
         }
@@ -85,7 +85,7 @@ BASE_DIR = os.path.dirname() #讀取路徑的基本套路
 
 04urls調度器Urlconf
 ====
-1. 每個功能建議分成不同app來寫，例如：wiki網站底下分為登入、編輯、評論，分別建立app。	
+1. 每個功能建議分成不同app來寫，例如：wiki網站底下分為登入、編輯、評論，分別建立app。
 2. 增加項目urls
 ```Python
 from django.contrib import admin
@@ -106,7 +106,7 @@ urlpatterns = [
 
 ]
 ```
-3. 來到index/views.py	
+3. 來到index/views.py
 ```python
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -151,12 +151,12 @@ from .Pkg2 import Module3 as M3
 1. 判斷數據類型以及正則表達式，Django還可以匹配自定義
 2. 帶變量的URL, 支持str字符串, int數字, slug備註, uuid唯一的id, path路徑。可以直接在用戶輸入時，判斷輸入類型是否正確。
 ```python
-path('<int:year>', views.myyear), 
+path('<int:year>', views.myyear),
 #傳入的參數會賦值給year變數，賦值後若發現不是int類型，則會報錯誤
 ```
 3. 打開index/urls.py
 ```python
-path('<int:year>', views.year), 
+path('<int:year>', views.year),
 #其中year的變數會傳到views.py內的year函數做匹配; 若year非整數，則Django默認返回404的錯誤。
 ```
 4. 變量year傳到views.py內的year函數，打開index/views.py
@@ -278,7 +278,7 @@ def year(request, year):
 5. python manage.py會顯示需要做哪些指令做處理
 6. Python manage.py makemigration 後，在目錄migrations會出現0001開頭的文件，作為修改SQL的文件，即為中間腳本
 7. 運行時若發現找不到MySQL配置，須到整個project根目錄的__init__.py中配置，該文件在runserver時，都會先被運行。
-import pymysql 
+import pymysql
 pymysql.install_as_MySQLdb() #替換資料庫
 8. 若仍找不到，在terminal手動將MySQL加入搜索路徑 export PATH=$PATH:/usr/local/mysql/bin
 9. 若遇到sql版本與decode報錯，也是追尋code將其註釋掉。
@@ -289,10 +289,57 @@ pymysql.install_as_MySQLdb() #替換資料庫
 1. 到django官方文檔認識字串、浮點數、日期等幾個常用的table欄位屬性
 2. Django驗證ORM語句的shell, 打開ORM_API.txt
 3. Python manage.py shell可打開練習用python 做數據的增刪改查
+```Shell
+from index.models import *
+dir() #顯示目前import的函數
+n = Name()  #將table的class實例化
+n.name = '紅樓夢'
+n.author = '曹雪芹'
+n.stars = 9.6
+n.save() #存入一條紀錄
+
+##使用ORM框架api實現
+from index.models import *
+Name.objects.create(name='活著', author='曹雪芹', stars=8.6)  #新增
+Name.objects.get(id=7).name #查找，返回name '活著'
+Name.objects.get(id=7) #查找，返回objects物件
+Name.objects.filter(name='紅樓夢').update(name='石頭記') #修改
+Name.objects.filter(name='石頭記').delete() #刪除
+Name.objects.all().delete()
+Name.objects.all()[0] #找到第一筆
+Name.objects.all()[0].name #喊回第一筆的name
+
+Name.objects.values_list('name') #QuerySet的模式
+Name.objects.values_list('name').count()  #可以搭配Python的list()相關功能使用
+```
+11Django模板開發
+====
+1. {{variables}}  透過views傳到模板
+2. {% url 'urlyear' 2020 %} 透過url獲取模板變量
+```python
+#從html
+<a href="{% url 'urlyear' 2020 %}">
+#將變量2020帶到urls.py的名為urlyear的re_path
+re_path('(?P<year>[0-9]{4}).html', views.myear, name='urlyear')
+#進到views.py的myyear函數
+#來到views.py的函數book
+from .models import Name #從models 帶入Name
+def books(request):
+  n = Name.objects.all()
+  return render(request, 'bookslist.html', locals()) #將本地的變量傳到模板
+  #自動從templates找bookslist.html檔案
+
+```
+3. {% static "css/header.css"%} 透過靜態文件
+4. for 遍歷標籤，if判斷標籤
+
+12展示數據庫中的內容
+====
+1.
 
 14urlconf與models配置
 ====
-1. 是否要製作獨立的app? 
+1. 是否要製作獨立的app?
    * https://ip/xxx
    * https://ip/yyyy
    * https://ip/douban/www
@@ -312,17 +359,17 @@ urlpatterns = [
     #include()函數會透過install_app的列表，找到urls.py的位置。
 ]
 # 當網頁執行https://ip:port/douban/index後會找到douban底下的urls.py，路徑為'index'的做匹配
-path('index', views.books_short), 
+path('index', views.books_short),
 ```
 3. 藉由以上方法，可以在一個project下新增不同的app，不用擔心app之間的路徑重複的問題
 4. urls.py如何確保找到的是當前app的views? 是在from . import views，確保import只從當前目錄下找views.py。
 5. 打開douban底下的views.py。
-```python 
+```python
 #如何抓取數據? 表的結構與內容是已經創建好的，如何反向創建模型
 python manage.py inspextdb > models.py
 #mysql中指定的表轉換成model，並輸出到文件
 #其中會多產生一個class Meta  元數據，其中內容並不屬於表中任一條紀錄
-class Meta: 
+class Meta:
     managed: False  #默認為true，方可用orm指令做數據庫的變更，由於是SQL轉過來的，django為避免更動到SQL的內容，所以預設為false。若是我們自己用ORM創建的數據庫則沒有設定這個選項，且預設為True
     db_table = 't1' #預設是"app名+下畫線+類的名字"做為表名，例如:Douban_T1。由於是SQL轉來的，會設定為原本的t1名稱。
 ```
@@ -330,7 +377,7 @@ class Meta:
 
 15views視圖的編寫
 ====
-1. 導入模型，打開douban底下的views.py 
+1. 導入模型，打開douban底下的views.py
 ```python
 from .models import T1 #即是透過SQL反向建立的模型
 
@@ -364,15 +411,38 @@ star_avg = f" {T1.objects.aggregate(Avg('n_star'))['n_star__avg']:0.1f} "
 16結合bootstarp模板進行開發
 ====
 1. 打開templates目錄與static底下的css等目錄。
-2. 找到starbootstrap.com 
+2. 找到starbootstrap.com
 3. 珊格系統
 4. 在views.py中，locals()會將當前函數下所有屬性進行加載
 5. {{block.super}}，可將父級的內容進行保留、加載進來，否則會被覆寫。
 
+17如何閱讀Django源代碼
+====
+1. 企業化普及
+2. Django帶很多Python的高級特性
+3. 從程序入口，但沒有像Java或C的main，因為python是解釋性語言，不需要用編譯器進行編寫
+4. 打開manage.py做解析，使用__name__使用py在獨立運行時執行main，import則不會運行。
+5. 針對某單一功能做追蹤解析
+6. 指定8080端口運行
+```Shell
+python manage.py runserver 8080 #127.0.0.1 8080
 
-
-
-
-
-
-	
+#實例化 WSGIserver才能做連接
+```
+18manage.py源碼分析
+====
+1. 註冊環境變量，方便重複使用
+```python
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'MyDjango.setting')
+```
+2. 前期校驗, 若django沒有安裝好，則會報錯
+```python
+try:
+    from django.core.management import execute_from_command_line
+```
+3. 查看以下函式轉到__init__.py中，似乎無法再追蹤，要再往文件上方的import看
+```python
+execute_from_command_line((runserver, '8080'))
+```
+4. 發現以下import
+默認的dict()是無序的hash結構，
