@@ -237,6 +237,7 @@ path('<yyyy:year>', views.year),
 
 08view試圖快捷方式
 1. response()一般的方式
+
 |響應類型|說明|
 |----|----|
 |HttpResponse("Hello world")|200,請求成功|
