@@ -364,3 +364,44 @@ channel.exchange_declare(exchange='log', exchange_type='fanout') #不會直接�
    3. 恰好一次，最高的服務等級，幾乎難以達到。
 4. 冪等性，判斷表是否存在，再去創建。重複沖值、扣款。寫入訊息前，先做加減，例如: 將金額從100扣10為90，系統先判斷資料是否為90，若已經是90則不再做加減。
    1. 利用數據庫的唯一約束
+
+16RPC與gRPC的使用
+====
+1. RabbittMQ就是屬於RPC遠程調用
+2. Protocal Buffers的作用:
+   1. 定義數據結構，HTTP1.0明碼、效率不高，改為TCP, 需要二進制、加密、解碼，透過RPC(遠程過程調用)提升效率。轉二進制(序列化)，二進制轉回明碼(反序列化)，除了傳的協議需要自己實現，RabbitMQ已經完成。HTTP2.0可以通過TCP傳輸
+   2. 定義服務街口
+   3. 序列化和反序列化
+3. gRPC特點
+   1. 基於HTTP、開源、支持多語言、通過protocal buffers編寫proto文件，交換機與服務器建立RCP通道。
+4. 打開mod5_grpc_client.py 與server.py、scheman.proto。
+```python
+
+```
+5. proto格式的定義
+   1. syntax申明解析文件的語法proto3
+   2. package schema
+   3. 定義service與message，在服務端客戶端定義Call(stream Request)，該傳甚麼類型的數據。Gateway在python中就是class，returns 返回的東西
+   ```python
+   message Request{ 
+      int64 num=1; #類型一，排序一，可以定義多個類型     
+   }
+   ```
+6. 打開終端
+```shell
+python3 -m grcp_tools.protoc -I ./ --python_out=. --grpc_python_out=. ./schema.proto   #一定到目的地目錄執行以上指令
+ls schema* #查看剛剛生成的文件
+```
+7. schema_pb2.py 靜態描述描述文件，python需要調用，不要去編輯，改完proto文件後，再去生成就可以。schema_pb3_grpc.py。
+8. 回到mod5_grpc_server.py，編寫的類，完成服務端的功能。
+   1. 繼承GatewayServicer
+   2. 編寫與gRPC相同的函數Call
+   3. 從request_iterator接收請求
+   4. 接收進來有甚麼樣的參數num=req.num+1
+9. main的邏輯稍微記住就行
+10. client端
+    1.  with 打開文件，其實是socket的連接，就變成channel。
+    2.  GatewayStub就是客戶端，加載channel，相當於和channel建立好通信。
+    3.  客戶端執行call這個函數，並往裡面傳入想傳入的內容，傳的是Request(num=num)，並傳入call的函數當中。服務端Response接收num，對其打印。
+11. 較難以了解的是，proto的定義，服務器該如何定義call、對應的函數名稱。主要理解他的架構，再到網路上解析其他的代碼做學習。
+12. 先執行server，進入阻塞監聽的狀態，再執行客戶端，就會看到客戶端一直有訊息回傳。
