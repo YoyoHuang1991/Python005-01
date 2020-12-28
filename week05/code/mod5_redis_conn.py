@@ -2,7 +2,7 @@
 import redis
 # pip3 install redis
 
-client = redis.Redis(host='server1', password='hUN7e4_1')
+client = redis.Redis(host='192.168.56.101', password='testpass')
 
 print(client.keys())
 

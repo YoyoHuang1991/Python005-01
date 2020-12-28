@@ -56,21 +56,26 @@ yum install centos-release-scl scl-utils-build
 yum list all --enablerepo='centos-sclo-rh'
 yum install -y devtoolset-8-toolchain
 #安裝完後以以下指令啟動
-scl enable devtookset-8-toolchain
+scl enable devtookset-8 bash
 gcc --version
 #在centOS的系統，先從根目錄進入redis-6.0.9目錄
+$ wget https://download.redis.io/releases/redis-6.0.9.tar.gz
+$ tar xzf redis-6.0.9.tar.gz
+$ cd redis-6.0.9
+$ make
 cd redis-6.0.9
 make ; make install 
 #安裝完成後，redis會有以下文件
 which redis-server
 #返回/usr/local/bin/redis-server
-which resis-cli
+which redis-cli
 #返回/usr/local/bin/redis-cli   
 #redis-6.0.9目錄下會有redis.conf配置文件，可以修改工作方式。可以複製到etc下面，來更改redis.cnf配置文件
 vim /etc/redis.cnf     
-:set nu  #在vim編輯器中顯示行號
-#找到requerspass，將密碼修改得足夠複雜
+:set nu  #在vim編輯器中顯示行號, 在791行
+#找到requirepass，增加密碼修改得足夠複雜
 #找到bind，將ip改為0.0.0.0 監聽所有ip位置。
+#找到daemonize 改為yes
 :wq #寫入後退出vim編輯器
 
 #啟動redis
