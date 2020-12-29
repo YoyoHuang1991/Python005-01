@@ -6,7 +6,7 @@ import pika
 credentials = pika.PlainCredentials('guest', 'hUN7e4_1')
 
 # 虚拟队列需要指定参数 virtual_host，如果是默认的可以不填。
-parameters = pika.ConnectionParameters(host='server1',
+parameters = pika.ConnectionParameters(host='localhost',
                                        port=5672,
                                        virtual_host='/',
                                        credentials=credentials)

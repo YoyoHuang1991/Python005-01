@@ -4,7 +4,7 @@ import time
 
 credentials = pika.PlainCredentials('guest', 'hUN7e4_1')
 
-parameters = pika.ConnectionParameters(host='server1',
+parameters = pika.ConnectionParameters(host='localhost',
                                        port=5672,
                                        virtual_host='/',
                                        credentials=credentials)
@@ -29,7 +29,7 @@ def callback(ch, method, properties, body):
 
 
 # 如果该消费者的channel上未确认的消息数达到了prefetch_count数，则不向该消费者发送消息
-channel.basic_qos(prefetch_count=1)
+channel.basic_qos(prefetch_count=10)
 
 # 消费者使用队列和哪个回调函数处理消息
 channel.basic_consume('task_queue', callback)
