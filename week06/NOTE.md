@@ -305,4 +305,43 @@ class Singleton2(object):
 ====
 1. 打開p2_factory.py，根據傳入的參數不同，建立不同的實例。靜態工廠模式
 2. 類工廠模式，生產類的，factory2。通過函數的返回值，Scrapy跟Django有很多相應的功能。
-    
+```python
+def factory2(func):
+    class klass: pass
+    setattr(klass, func.__name__, func)
+    return klass
+def say_foo(self):
+    print('bar')
+
+Foo = facotry2(say_foo) #產生一個類
+foo = Foo() #將類實例化，若使用classmethod，就不需要做實例化，直接Foo.say_foo就可以執行。setattr(klass, func.__name__, classmethod(func))
+foo.say_foo()
+```
+3. 一般不會使用以上動態創建類，但在django、flask框架當中會用到。
+
+11元類
+====
+1. 工廠模式不夠靈活，於是產生元類，創建類的類。元類可以用type或class創建。
+    * 元類是創建類的類，是類的模板。
+    * 元類是用來控制如何創建類的，正如類是創建對象的模板一樣
+    * 元類的實例為類，正如類的實例為對象
+    * 創建元類的兩種方法
+2. 函數叫可調用的對象
+3. 打開p3_metaclass.py
+4. 元類要求，必須繼承自type。
+5. 創建時，就樣增加功能。一般人不會用到，是在編寫框架時常用。
+
+12mixins模式
+====
+1. 抽象基類，避免繼承錯誤，使類層次易於理解和維護。
+```python
+from abc import ABC
+
+class MyABC(ABC):
+    pass
+```
+2. 打開p4_abc.py
+```python
+
+
+```
