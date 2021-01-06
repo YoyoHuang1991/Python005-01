@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/Users/yuyuhuang/opt/anaconda3/envs/mydjango/bin/python"
+    "python.pythonPath": "/Users/yuyuhuang/opt/anaconda3/envs/mydjango/bin/python",
+    "editor.wordWrap": "on"
 }

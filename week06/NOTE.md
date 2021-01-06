@@ -1,4 +1,29 @@
 学习笔记
+Homework
+====
+<h3>背景：在使用 Python 进行《我是动物饲养员》这个游戏的开发过程中，有一个代码片段要求定义动物园、动物、猫、狗四个类。
+这个类可以使用如下形式为动物园增加一只猫：</h3>
+
+```python
+if __name__ == '__main__':
+    # 实例化动物园
+    z = Zoo('时间动物园')
+    # 实例化一只猫，属性包括名字、类型、体型、性格
+    cat1 = Cat('大花猫 1', '食肉', '小', '温顺')
+    # 增加一只猫到动物园
+    z.add_animal(cat1)
+    # 动物园是否有猫这种动物
+    have_cat = hasattr(z, 'Cat')
+```
+<h3>具体要求：</h3>
+* 定义“动物”、“猫”、“狗”、“动物园”四个类，动物类不允许被实例化。
+* 动物类要求定义“类型”、“体型”、“性格”、“是否属于凶猛动物”四个属性，是否属于凶猛动物的判断标准是：“体型 >= 中等”并且是“食肉类型”同时“性格凶猛”。
+* 猫类要求有“叫声”、“是否适合作为宠物”以及“名字”三个属性，其中“叫声”作为类属性，除凶猛动物外都适合作为宠物，猫类继承自动物类。狗类属性与猫类相同，继承自动物类。
+* 动物园类要求有“名字”属性和“添加动物”的方法，“添加动物”方法要实现同一只动物（同一个动物实例）不能被重复添加的功能。
+
+
+
+
 01類屬性與對象屬性
 ====
 1. 類，python一切接對象。某個對象有自己的特殊功能。
@@ -26,7 +51,7 @@ man.live = False #在普通字段底下創建self.live這個屬性
 man.live #輸出為False是普通字段中的live屬性
 woman.live #輸出為True是靜態字段的live
 ```
-6. 實例化的a,b是相等的嗎？值相等，但是是不同的對象，可以用__class__()查看類。同類，但內存的地址是不相同的。
+6. 實例化的a,b是相等的嗎？值相等，但是是不同的對象，可以用__class__()查看類。同類，但內存的地址是不相同的。打開p1_class_obj.py
 7. 類也是對象
 ```python
 c = MyClass
@@ -46,7 +71,7 @@ Human.newattr = 1 #新增屬性
 ```python
 setattr(list, 'newattr', 'value') #不能給內置函數list添加屬性
 ```
-3. 實例後佔不同內從，對man, woman的屬性做變更，不會互相影響。
+3. 實例後佔不同內存，對man, woman的屬性做變更，不會互相影響。
 4. 開啟p3_class_pro2.py
 ```python
 _age = 0 #人為不可修改，中間值屬性，不建議直接修改
@@ -65,11 +90,11 @@ type(()) #返回是tuple的類
 ====
 1. 語法糖 @，在原有的語法加上特殊的功能。
 2. 普通方法self，該方法的對象。類方法cls，該方法的類。靜態方法，和類相關的功能，又不想孤立他，不能引用裡面的方法。
-3. 打開p5_classmethod.py
+3. 打開p5_1classmethod.py
 ```python
 class Klsl(object):
     bar = 1
-    def foo(self):
+    def foo(self):  #實例化之後才能使用
         print('in foo')
     @classmethod
     def class_foo(cls): #cls跟self一樣，是約定俗成的命名方法
@@ -78,7 +103,7 @@ class Klsl(object):
         cls().foo()
 Klsl.class_foo()
 
-import django #點擊跟蹤到django的代碼，再查找@classmethod，可以查看django如何使用相印的功能
+import django #點擊跟蹤到django的代碼，再查找@classmethod，可以查看django如何使用相應的功能
 ```
 4. 在story裡面定義method
 ```python
@@ -94,10 +119,11 @@ s = Story('anyone')
 print(s.get_apple_to_eve())  #可以調用
 print(Story.get_apple_to_eve()) #也可以調用
 ```
-5. 何時要用classmethod？可以
-    1. 特點一：參數第一個名字是類的名字cls，如同類Story()實例化成s1, s2時，調用裡面的參數就不用再用Story.name調用，可以用s1.name，可見參數self是如__name__一樣，隨環境變化，是動態語言的好處。藉此特點在父類當中建立classmethod，再用兩個子類繼承父類，調用時，值是不互相影響，各自獨立。
-    2. 當函數調用的時候，需要操作類的時候。或類需要進行一系列的構造函數的時候。如同java的構造函數，但在python裡面預設只有__new__()。
-    3. 打開p5_1classmethod.py
+5. 何時要用classmethod？
+    1. 與普通字段__init__相同：參數第一個名字是類的名字cls，如同類Story()實例化成s1, s2時，調用裡面的參數就不用再用Story.name調用，可以用s1.name，可見參數cls和self是如__name__一樣，隨環境變化，是動態語言的好處。藉此特點在父類當中建立classmethod，再用兩個子類繼承父類，呼叫時，可使用子類的名稱。
+    2. __init__的值調用時，值是不互相影響，各自獨立。但子類的classmethod的值是與父類共用的。
+    3. 當函數調用的時候，需要操作類的時候。或類需要進行一系列的構造函數的時候。如同java的構造函數，但在python裡面預設只有__new__()。
+    4. 打開p5_1classmethod.py
     ```python
     class Kls2():
         def __init__(self, fname, lname):
