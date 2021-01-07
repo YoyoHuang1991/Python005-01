@@ -1,3 +1,7 @@
 {
+<<<<<<< HEAD
     "python.pythonPath": "d:\\venvforpython3\\env20201221\\Scripts\\python.exe"
+=======
+    "python.pythonPath": "/Users/yuyuhuang/opt/anaconda3/envs/mydjango/bin/python"
+>>>>>>> c749ea9b8b444ddbfbb59cae15e807b0b9f2a0b3
 }

@@ -3,7 +3,7 @@ import pika
 
 credentials = pika.PlainCredentials('guest', 'hUN7e4_1')
 
-parameters = pika.ConnectionParameters(host='server1',
+parameters = pika.ConnectionParameters(host='localhost',
                                        port=5672,
                                        virtual_host='/',
                                        credentials=credentials)
