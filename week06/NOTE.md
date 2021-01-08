@@ -1,4 +1,29 @@
 学习笔记
+Homework
+====
+<h3>背景：在使用 Python 进行《我是动物饲养员》这个游戏的开发过程中，有一个代码片段要求定义动物园、动物、猫、狗四个类。
+这个类可以使用如下形式为动物园增加一只猫：</h3>
+
+```python
+if __name__ == '__main__':
+    # 实例化动物园
+    z = Zoo('时间动物园')
+    # 实例化一只猫，属性包括名字、类型、体型、性格
+    cat1 = Cat('大花猫 1', '食肉', '小', '温顺')
+    # 增加一只猫到动物园
+    z.add_animal(cat1)
+    # 动物园是否有猫这种动物
+    have_cat = hasattr(z, 'Cat')
+```
+<h3>具体要求：</h3>
+* 定义“动物”、“猫”、“狗”、“动物园”四个类，动物类不允许被实例化。
+* 动物类要求定义“类型”、“体型”、“性格”、“是否属于凶猛动物”四个属性，是否属于凶猛动物的判断标准是：“体型 >= 中等”并且是“食肉类型”同时“性格凶猛”。
+* 猫类要求有“叫声”、“是否适合作为宠物”以及“名字”三个属性，其中“叫声”作为类属性，除凶猛动物外都适合作为宠物，猫类继承自动物类。狗类属性与猫类相同，继承自动物类。
+* 动物园类要求有“名字”属性和“添加动物”的方法，“添加动物”方法要实现同一只动物（同一个动物实例）不能被重复添加的功能。
+
+
+
+
 01類屬性與對象屬性
 ====
 1. 類，python一切接對象。某個對象有自己的特殊功能。
@@ -26,7 +51,7 @@ man.live = False #在普通字段底下創建self.live這個屬性
 man.live #輸出為False是普通字段中的live屬性
 woman.live #輸出為True是靜態字段的live
 ```
-6. 實例化的a,b是相等的嗎？值相等，但是是不同的對象，可以用__class__()查看類。同類，但內存的地址是不相同的。
+6. 實例化的a,b是相等的嗎？值相等，但是是不同的對象，可以用__class__()查看類。同類，但內存的地址是不相同的。打開p1_class_obj.py
 7. 類也是對象
 ```python
 c = MyClass
@@ -46,7 +71,7 @@ Human.newattr = 1 #新增屬性
 ```python
 setattr(list, 'newattr', 'value') #不能給內置函數list添加屬性
 ```
-3. 實例後佔不同內從，對man, woman的屬性做變更，不會互相影響。
+3. 實例後佔不同內存，對man, woman的屬性做變更，不會互相影響。
 4. 開啟p3_class_pro2.py
 ```python
 _age = 0 #人為不可修改，中間值屬性，不建議直接修改
@@ -65,11 +90,11 @@ type(()) #返回是tuple的類
 ====
 1. 語法糖 @，在原有的語法加上特殊的功能。
 2. 普通方法self，該方法的對象。類方法cls，該方法的類。靜態方法，和類相關的功能，又不想孤立他，不能引用裡面的方法。
-3. 打開p5_classmethod.py
+3. 打開p5_1classmethod.py
 ```python
 class Klsl(object):
     bar = 1
-    def foo(self):
+    def foo(self):  #實例化之後才能使用
         print('in foo')
     @classmethod
     def class_foo(cls): #cls跟self一樣，是約定俗成的命名方法
@@ -78,7 +103,7 @@ class Klsl(object):
         cls().foo()
 Klsl.class_foo()
 
-import django #點擊跟蹤到django的代碼，再查找@classmethod，可以查看django如何使用相印的功能
+import django #點擊跟蹤到django的代碼，再查找@classmethod，可以查看django如何使用相應的功能
 ```
 4. 在story裡面定義method
 ```python
@@ -94,10 +119,11 @@ s = Story('anyone')
 print(s.get_apple_to_eve())  #可以調用
 print(Story.get_apple_to_eve()) #也可以調用
 ```
-5. 何時要用classmethod？可以
-    1. 特點一：參數第一個名字是類的名字cls，如同類Story()實例化成s1, s2時，調用裡面的參數就不用再用Story.name調用，可以用s1.name，可見參數self是如__name__一樣，隨環境變化，是動態語言的好處。藉此特點在父類當中建立classmethod，再用兩個子類繼承父類，調用時，值是不互相影響，各自獨立。
-    2. 當函數調用的時候，需要操作類的時候。或類需要進行一系列的構造函數的時候。如同java的構造函數，但在python裡面預設只有__new__()。
-    3. 打開p5_1classmethod.py
+5. 何時要用classmethod？
+    1. 與普通字段__init__相同：參數第一個名字是類的名字cls，如同類Story()實例化成s1, s2時，調用裡面的參數就不用再用Story.name調用，可以用s1.name，可見參數cls和self是如__name__一樣，隨環境變化，是動態語言的好處。藉此特點在父類當中建立classmethod，再用兩個子類繼承父類，呼叫時，可使用子類的名稱。
+    2. __init__的值調用時，值是不互相影響，各自獨立。但子類的classmethod的值是與父類共用的。
+    3. 當函數調用的時候，需要操作類的時候。或類需要進行一系列的構造函數的時候。如同java的構造函數，但在python裡面預設只有__new__()。
+    4. 打開p5_1classmethod.py
     ```python
     class Kls2():
         def __init__(self, fname, lname):
@@ -135,7 +161,7 @@ class Story(object):
 
 05描述器高級應用__getattribute__
 ====
-1. 如果屬性不存在，則做預處理，例如給予初始值，不讓他產生異常。在類中，需要最實力獲取屬性這一行為操作，可使用：
+1. 如果屬性不存在，則做預處理，例如給予初始值，不讓他產生異常。在類中，需要最實例獲取屬性這一行為操作，可使用：
     * __getattribute__() 對所有屬性的訪問都會調用該方法
     * __getattr__() 適用未定義的屬性
 2. 開啟p6_1getattribute.py
@@ -163,10 +189,68 @@ return 100
 2. 打開p6_4getattr.py, p6_5getattr.py
 3. 當getattr與getattribute同時存在時，優先順序，p6_6both_define.py
 ```python
-__getattribue__ > __getattr__ > __dict__
+#__getattribue__ > __getattr__ > __dict__
+class Human2(object):  
+    """
+    属性不在实例的__dict__中,__getattr__被调用
+    """
+    def __init__(self):
+        self.age = 18
+
+    def __getattr__(self, item): 
+        print(f' __getattr__ called item:{item}')
+        # 不存在的属性返回默认值 'OK'
+        return 'OK'
+
+h1 = Human2()
+
+print(h1.age)
+print(h1.noattr)
 ```
 4. 不管屬性存在不存在，python都會調用__getattribute__，會對實例產生一定的損耗
-5. 使用__getattr__時，__dict__裡依然沒有該屬性，當使用hasattr判斷是否有該屬性即使返回true，在__dict__依然看不到已經存在的屬性。雖然改變行為，但內置方法可能出現不一致的問題。
+5. 若修改__getattr__新增不存在的屬性，當__dict__查看擁有的屬性時，裡面若沒有該屬性，但使用hasattr判斷是否有該屬性時，會永遠返回True，產生內置方法出現不一致的問題。hasattr()方法在執行過程中，會執行該類修改後的__getattr__，進一步修改查詢的屬性的值。
+```python
+class Human2(object):  
+    def __init__(self):
+        self.age = 18
+
+    def __getattr__(self, item): 
+        # 对指定属性做处理:fly属性返回'superman',其他属性返回None
+        self.item = item
+        if self.item == 'fly':
+            return 'superman'
+h1 = Human2()
+print(h1.age)
+print(h1.fly)
+print(h1.noattr)
+
+#hasattr(h2, '任意屬性值') 都會返回True
+```
+6. 打開p6_6both_define.py 
+```python
+class Human2(object):    
+    """
+    同时存在的调用顺序
+    """
+    def __init__(self):
+        self.age = 18
+
+    def __getattr__(self, item): 
+
+        print('Human2:__getattr__')
+        return 'Err 404 ,你请求的参数不存在'
+
+    def __getattribute__(self, item):
+        print('Human2:__getattribute__')
+        return super().__getattribute__(item)
+
+h1 = Human2()
+
+# 如果同时存在，执行顺序是 __getattribute__ > __getattr__ > __dict__
+print(h1.age)
+print(h1.noattr)
+# 注意输出，noattr的调用顺序
+```
 
 07描述器原理&屬性描述符
 ====
@@ -187,8 +271,35 @@ pythonteacher = Teacher('yin')
 4. Django中的property，site-packages/django/db/models/base.py
 5. 打開p7_1descraptor.py
 ```python
+# __getattribute__ 的底层原理是描述器
 class Desc(object):
+    """
+    通过打印来展示描述器的访问流程
+    """
+    def __init__(self, name):
+        self.name = name
+    
+    def __get__(self, instance, owner):
+        print(f'__get__{instance} {owner}')
+        return self.name
 
+    def __set__(self, instance, value):
+        print(f'__set__{instance} {value}')
+        self.name = value
+
+    def __delete__(self, instance):
+        print(f'__delete__{instance}')
+        del self.name
+
+class MyObj(object):
+    a = Desc('aaa')
+    b = Desc('bbb')
+
+my_object = MyObj()
+print(my_object.a)
+
+my_object.a = 456
+print(my_object.a)
 ```
 6. 經常用的不是底層協議，是了解後，直接用property，打開p7_2descraptor.py。將方法封裝成屬性。
 ```python
@@ -305,3 +416,43 @@ class Singleton2(object):
 ====
 1. 打開p2_factory.py，根據傳入的參數不同，建立不同的實例。靜態工廠模式
 2. 類工廠模式，生產類的，factory2。通過函數的返回值，Scrapy跟Django有很多相應的功能。
+```python
+def factory2(func):
+    class klass: pass
+    setattr(klass, func.__name__, func)
+    return klass
+def say_foo(self):
+    print('bar')
+
+Foo = facotry2(say_foo) #產生一個類
+foo = Foo() #將類實例化，若使用classmethod，就不需要做實例化，直接Foo.say_foo就可以執行。setattr(klass, func.__name__, classmethod(func))
+foo.say_foo()
+```
+3. 一般不會使用以上動態創建類，但在django、flask框架當中會用到。
+
+11元類
+====
+1. 工廠模式不夠靈活，於是產生元類，創建類的類。元類可以用type或class創建。
+    * 元類是創建類的類，是類的模板。
+    * 元類是用來控制如何創建類的，正如類是創建對象的模板一樣
+    * 元類的實例為類，正如類的實例為對象
+    * 創建元類的兩種方法
+2. 函數叫可調用的對象
+3. 打開p3_metaclass.py
+4. 元類要求，必須繼承自type。
+5. 創建時，就樣增加功能。一般人不會用到，是在編寫框架時常用。
+
+12mixins模式
+====
+1. 抽象基類，避免繼承錯誤，使類層次易於理解和維護。
+```python
+from abc import ABC
+
+class MyABC(ABC):
+    pass
+```
+2. 打開p4_abc.py
+```python
+
+
+```
