@@ -400,17 +400,37 @@ return super()._＿getattribute__() #引用原有的getattribute
         * __init__是實例對象創建完成後被調用，是實例方法
         * __new__先被調用，__init__後被調用
         * __new__的返回值（實例）將傳遞給__init__方法的第一個參數，__init__給這個實例設置相關參數
-3. 實現方式p1_single.py，使用裝飾器使用。推薦用第二種__new__的方式，針對單線程的，如果用在多線程，要加鎖，以免被覆寫。
+3. 實現方式p1_single.py，使用裝飾器使用。確保最多創建一個類的一個實例。任何後續調用都將返回已存在的類實例。以下面的例子，m1、m2都指向內存裡同一個類，以確保MyClass不被重複創建。
+```python
+def singleton(cls):
+    instances = {}
+    def getinstance():
+        if cls not in instances:
+            instances[cls] = cls()  #如果MyClass不在裡面，則實例化MyClass()，並存到instances裡。
+        return instances[cls]   #如果MyClass已經在裡面，則直接從instances將該cls回傳
+    return getinstance #回傳這個方法
+
+@singleton 
+class MyClass:
+    pass
+
+m1 = MyClass()
+m2 = MyClass()
+print(id(m1))
+print(id(m2))
+```
+
+推薦用第二種__new__的方式，針對單線程的，如果用在多線程，要加鎖，以免被覆寫。
 ```python
 class Singleton2(object): 
     __isinstance = False #默認沒有被實例化
     def __new__()
 
 ```
-4. 引入threading，if cls in cls.objs，如果cls在對象裡面，已經實例化，則進行返回。
-    1. 創建實例的部分會有問題，須先用threading.lock().acquire()加鎖。值翔完成後，finally釋放掉。
+1. 引入threading，if cls in cls.objs，如果cls在對象裡面，已經實例化，則進行返回。
+    1. 創建實例的部分會有問題，須先用threading.lock().acquire()加鎖。完成後，finally釋放掉。
     2. 雙檢測，加鎖前後都檢測，確保多線程的運作。
-5. 最簡單方法，使用模塊import的方式，import的機制是線程安全，已經引入的模塊，不會重複引入。
+2. 最簡單方法，使用模塊import的方式，import的機制是線程安全，已經引入的模塊，不會重複引入。
 
 10工廠模式
 ====
@@ -440,7 +460,7 @@ foo.say_foo()
 2. 函數叫可調用的對象
 3. 打開p3_metaclass.py
 4. 元類要求，必須繼承自type。
-5. 創建時，就樣增加功能。一般人不會用到，是在編寫框架時常用。
+5. 創建時，就像增加功能。一般人不會用到，是在編寫框架時常用。
 
 12mixins模式
 ====
