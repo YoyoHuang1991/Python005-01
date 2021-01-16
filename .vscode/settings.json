@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\Yuyu\\envs\\my_django_environment\\Scripts\\python.exe",
+    "python.pythonPath": "/Users/yuyuhuang/.virtualenvs/my_django_environment/bin/python",
     "editor.wordWrap": "on"
 
 }

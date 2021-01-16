@@ -223,5 +223,114 @@ def decorate(func):
 def func2():
     pass
 ```
-5. 
+5. 用包裝的方式簡化code
+```python
+# 注册
+@route('index',methods=['GET','POST'])
+def static_html():
+    return  render_template('index.html')
 
+# 等效于
+static_html = route('index',methods=['GET','POST'])(static_html)()
+
+
+def html(func):
+    def decorator():
+        return f'<html>{func()}</html>'
+    return decorator
+
+def body(func):
+    def decorator():
+        return f'<body>{func()}</body>'
+    return decorator
+
+@html
+@body
+def content():
+    return 'hello world'
+
+content()
+```
+
+09被裝飾函數帶參數和返回值的處理
+====
+1. 被裝飾的函數帶參數，該如何寫？打開p3_function_args.py
+```python
+# 被修饰函数带参数
+def outer(func): 
+    def inner(a,b):
+        print(f'inner: {func.__name__}')
+        print(a,b)
+        func(a,b)
+    return inner
+
+@outer
+def foo(a,b):
+    print(a+b)
+    print(f'foo: {foo.__name__}')
+    
+foo(1,2)
+foo.__name__
+```
+2. 被包裝後，當呼叫foo()時，事實上是呼叫inner()，意義上foo(1,2)等同於inner(1,2)。func名稱仍是在全域環境下的foo。inner內的func被呼叫時，打印出foo.__name__為foo，因包裝時，return inner 給foo，所以foo.__name__會是inner。
+    1. 函數已經被替換成裝飾器的內部函數
+    2. 當函數帶有兩個參數，inner內部函數也需要同時帶兩個參數，才能把原有的參數帶給foo。
+3. 把內部函數改為接受，不定參數的格式
+```python
+def outer2(func):
+    def inner2(*args, **kwargs):
+        #在此加入新的功能
+        ret = func(*args, **kwargs)
+        return ret  #讓foo2
+    return inner2
+
+@outer2
+def foo2(a,b,c):
+    return a+b+c
+
+foo2(1,3,5)
+```
+4. 需要關注的
+    1. 到底用的是函數的對象名稱，還是讓你的函數運行起來拿到結果。
+    2. 函數裡邊的作用域
+    3. 參數
+    4. 返回值：在內部函數修改返回值
+```python
+#打開p4_decorate_args.py
+# 装饰器堆叠
+
+@classmethod
+@synchronized(lock)
+def foo(cls):
+    pass
+
+
+def foo(cls):
+    pass
+foo2 = synchronized(lock)(foo)
+foo3 = classmethod(foo2)
+foo = foo3
+```
+
+10Python內置裝飾器
+====
+1. 最常用functools，cache緩存
+2. 打開p5_wraps.py，建議使用functools.wraps的方法做裝飾，以及LRUCache，多次調用函數，且結果一致時，直接返回結果即可，不用再執行函數。
+3. LRU是一種淘汰機制，打開p6_lru_cache.py
+```python
+import functools
+@functools.lru_cache()
+def fibonacci(n):
+    if n < 2:
+        return n
+    return fibonacci(n-2) + fibonacci(n-1)
+
+if __name__=='__main__':
+    import timeit
+    print(timeit.timeit("fibonacci(6)", setup="from __main__ import fibonacci"))
+```
+
+11類裝飾器
+====
+1. 打開p7_class_decorate.py，用class作為裝飾器。
+2. 使用@decorate作為dislay重寫
