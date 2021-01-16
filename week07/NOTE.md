@@ -3,7 +3,7 @@
 * 获取课程源码操作方法：
 * git clone https://github.com/wilsonyin123/geekbangtrain.git
 * cd geekbangtrain
-* 切换分支：git checkout 6b
+* 切换分支：git checkout 6b、git checkout 7a
 
 01變量賦值
 ====
@@ -333,4 +333,103 @@ if __name__=='__main__':
 11類裝飾器
 ====
 1. 打開p7_class_decorate.py，用class作為裝飾器。
-2. 使用@decorate作為dislay重寫
+2. 打開p8_decorate_class.py，使用@decorate重寫dislay
+3. 用__call__將class模擬成函數(可調用的對象)，
+
+12官方文黨中的裝飾器代碼閱讀指南
+====
+1. 打開p9_other.py，新版本更新，可以觀察文檔學習發展趨勢。
+2. PEP會描述那些功能會即將過期，或為何要新增那些功能。
+3. Data class的功能，python 3.7版本新增，省掉__init__與__eq__的編寫，但var_a不能作為類屬性訪問。
+```python
+from dataclasses import dataclass   
+@dataclass
+class MyClass:
+    var_a: str  
+    var_b: str
+```
+
+13對象協議與鴨子類型
+====   
+1. Duck Tpying定義: 按照字典的方式訪問你，可以得到相應的結果，就把你當作字典。
+   1. 透過容器類型協議: 
+      1. __str__
+      2. __getitem__, __setitem__, __delitem__ 字典索引操作
+      3. __iter__迭代器
+      4. __call__可調用對象協議
+   2. 比較大小的協議:
+      1. __eq__
+      2. __gt__
+   3. 描述符協議和屬性交互協議
+      1. __get__
+      2. __set__
+   4. 可哈希對象
+      1. __hash__
+2. 自己編寫的程序要跟標準的函數對齊。例如: 定義班級class，用__iter__顯示班級人數，便能用len()函數來對班級類操作。
+3. 可哈希，即字典，自己定義的類要使用字典模式，就要用__hash__
+4. 上下文管理器，with使用__enter__()、__exit__()操作完文件finally自動關閉文件。
+5. 打開p2_FormatSring.py，一般情況__str__跟__repr__會設定相同的值。
+6. 格式化字符串
+7. 用print正常輸出會用__str__，程序調用會用__repr__。
+8. 類型註記typing，與鴨子類型相反，聲明變亮的時候就要指定類型，如果使用其他類型對變量賦值就會報錯。
+   1. 大型的程序需要傳遞參數，提示應該怎麼輸入，只是提示，不能強制。強制定義對動態語言沒有意義。
+```python
+def func(text:str, number: int) -> str:
+    return text*number
+func('a',5)
+```
+
+14yield語句 p1_iter.py
+====
+1. return 的返回比較直觀，有多少值，全部一起返回。
+2. yield: 返回生成器。用for in取值，則有暫停功能，每次取一個值。
+```python
+a = (i for i in range(1,10))
+next(a)
+for i in a:
+    print(i)
+```
+3. 能以next與for in取值的功能，即為完成的迭代器。
+4. iterables，有__iter__一定是可迭代，可用for in；有__iter__且有next()，則為iterator；若進一步包含yield，則為generator。
+5. 打開p1_iter.py
+```python
+alist = [1,2,3,4,5]  
+hasattr(alist, '__iter__') #True
+hasattr(alist, '__next__') #False   
+#實務上常以此判斷是否有相應屬性，若無則用setattr()添加，動態變化。
+
+for in in alist:
+    print(i)
+#list可迭代，但不是迭代器
+```
+6. 用class實現__iter__和__next__就能實現迭代器，
+7. 用函數def實現迭代器協議，最簡單。只要用yield，不用寫iter與next，def返回的訊息就是"生成器對象"，執行之後變成"生成器構造函數"。
+8. 若不確定是否為生成器，可以用check_iterator()進行檢測
+
+15迭代器使用的注意事項
+====
+1. C++裡面也有，python的迭代器沒有C++那樣完整。
+2. yield並不會比較省內存，而是實現迭代器的協議，只用next就可以調用他。
+3. 打開p2_infinite.py，計數、循環、重複
+4. 有限迭代器，避免多次循環
+```python
+for j in itertools.chain('abc', [1,2,3]): 
+    print(j)
+```
+5. python3.3  引入yield from
+```python
+def chain(*iterables):
+    for it in iterables:
+        for i in it:
+            yield i
+def chain(*iterables):
+    for i in iterables:
+        yield from iterables #替代內循環
+s = 'ABC'
+t = [1, 2, 3]
+list(chain(s, t))
+```
+
+6. 打開p3_destroy.py，定義好迭代器後，從後面插入值。字典若再被插入新值，迭代器會失效。
+7. 列表若插入新值，迭代器只會變長，不會失效。
+8. 迭代器一旦耗盡，永久損壞。裡面內容只能取一次，與列表不同。

@@ -1,5 +1,8 @@
 {
     "python.pythonPath": "/Users/yuyuhuang/.virtualenvs/my_django_environment/bin/python",
-    "editor.wordWrap": "on"
+    "editor.wordWrap": "on",
+    "workbench.preferredLightColorTheme": "Default Dark+",
+    "workbench.preferredDarkColorTheme": "Solarized Dark",
+    "workbench.colorTheme": "Solarized Dark"
 
 }
