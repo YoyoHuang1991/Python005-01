@@ -433,3 +433,68 @@ list(chain(s, t))
 6. 打開p3_destroy.py，定義好迭代器後，從後面插入值。字典若再被插入新值，迭代器會失效。
 7. 列表若插入新值，迭代器只會變長，不會失效。
 8. 迭代器一旦耗盡，永久損壞。裡面內容只能取一次，與列表不同。
+
+16yield表達式
+====
+1. 打開p4_yieldexp.py，yield有暫停功能，在yield將code分成上下兩部分
+2. 執行print(next(iterator))會返回零，因為yield index會先返回0，iterator程序暫停在此。
+3. 當使用send(2)，相當於恢復yield的執行，並將值2賦給jump。
+```python
+def jumping_range(up_to):
+    index = 0
+    while index < up_to:
+        jump = yield index
+        print(f'jump is {jump}')
+        if jump is None:
+            jump = 1   # next() 或者 send(None)
+        index += jump 
+        print(f'index is {index}')
+
+if __name__ == '__main__':
+    iterator = jumping_range(5)
+    print(next(iterator)) # 0
+    print(iterator.send(2)) # 2
+    print(next(iterator)) # 3
+    print(iterator.send(-1)) # 2
+    for x in iterator:
+        print(x) # 3, 
+```
+4. next()與send()一樣，都是放進一個空值，藉此可以丟進負值，返回製成協程的操作。
+
+17協程簡介
+====
+1. 與多線程threading區別
+    1. 協程是異步，線程是同步
+    2. 協程非搶佔式，線程是搶佔式的
+    3. 協程是主動調度，線程是被動調度的
+    4. 協程可以暫停函數的執行，保留上一次調用時的狀態，是增強型生成器。
+    5. 協程是用戶級的任務調度，線程是內核級的任務調度。
+    6. 協程適用於IO密集型程序，不適用於CPU密集型程序的處理
+2. 計算級應用比較適合多線程，scrapy底層是用協程。
+3. python3.5引入await取代yield from方式
+```python
+import asyncio
+async def py35_coro():
+    await stuff()
+```
+4. await接收對象必須是awaitable對象，對象有定義__await__()方法，對象有三類。
+    1. 協程coroutine
+    2. 任務task
+    3. 未來對象future
+5. 事件循環，當A發生時，執行B。如前端開發js的事件循環，點擊按鈕、判斷是否註冊過？才執行某一事件。
+6. 解決網絡等待的過程，過去使用request之後得等待返回，現在異步請求執行後，先註冊自己再發送請求，就不管了，一直等到網卡接受到訊息，再從已註冊的請求中找有沒有對應的，此請求若是已註冊過，就進行響應，若沒有註冊過則報錯。
+```python
+import asyncio
+async def main():
+    print('hello')
+    await asyncio.sleep(3)   #這裡不能用time.sleep()，async會忽略掉。使await asyncio.sleep(3)不會消耗cpu，此sleep也支持__await__()方法，可以直接使用await操作。
+    print('world')
+
+# asyncio.run()运行最高层级的conroutine
+asyncio.run(main())
+```
+
+18aiohttp簡介
+====
+1. 一般都是多進程和多線程做結合，多進程與協程結合，
+2. 沒有線程和協程結合，因為python有GIL鎖。
