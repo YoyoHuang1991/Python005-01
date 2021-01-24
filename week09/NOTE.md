@@ -106,3 +106,111 @@ python manage.py runserver
          3. Session，通過網頁登錄。功能完善後，用來驗證的方式。
       3. PAGE_SIZE, 默認指返回10條，若沒有設定，則會增價大量讀取。
    2. Urls.py，在urlpatterns中添加功能的urls。
+
+05實現文章關聯功能
+====
+1. 打開micorblog的urls.py，路徑當中體現版本v1，當新版本v2不能用時，保持v1，可以繼續使用。把用戶屬性帶進去，進到first/urls.py。
+2. first/urls.py其中DefaultRouter是由SimpleRouter的擴展，預設都有articles跟users的API。Default則多了API root，請求到根目錄時，就會有入口介面。root_view_name重寫，自訂'api_root'。
+3. 在views.py，即可看到DefaultRouter的api_root函數。@api_view()是透過from rest_framework.decorators import api_view導入，功能為接受視圖應響應的http方法。GET也可以改成POST，則只接受POST，或是改為['GET',"POST"]兩者都接受。
+   1. Response的返回是rest_framework的返回，與預設的區別為，可以返回dict的字符串。通過註冊的名字'user-list'和'article-list'來取出反向的urls。
+   2. request參數得到請求，format是標準的格式，這邊不設定，所以是None。
+4. 基於class的views，viewsets有不同的寫法，若用ReadOnlyModeViewSet，返回的內容只能讀取。
+5. 用戶序列化serializers.py，
+   1. articles是通過序列化和主鍵關係的關聯，和文章的id是不同的
+6. 在views.py中，ArticleAPIViewSet，權限是以permission.IsOwnerOrReadOnly，繼承BasePermission，重寫has_object_permission，讀時不需要做登入；用戶名稱和請求的user一致，則可以寫入。
+   1. perform_creat函數，是從viewsets.ModelViewSet繼承，而ModelViewSet又是從GenericViewSet繼承；用mixin的方式，引入Create、Retrieve等CRUD五個方式。
+   2. CreateModelMixin中，當model創建時create，創建完成之後perform_create執行serializer.save()。在ArticlaeAPIViewSet中，另外設定perform_create額外保存owner為self.request.user，把用戶也做關聯、保存。
+7. serializer_class找到model對應序列化的類。
+8. 用DRF功能，url的關聯關係會自動生成，不用畫ER圖，透過連接方便交叉訪問。
+
+06給Django REST framework擴展文檔和用戶創建功能
+====
+1. 自動將API生成文檔，include_docs_urls，title=BBS，左側為
+2. serializers.py裡設定Meta時，exclude與fields是互斥的選項，不能兩個都加。
+   1. 創建要有password，查看不要有password。
+   2. def validate調用make_password將密碼散列，存到attrs['password']
+   3. 校驗則是check_password()。
+3. 引用到createuserView的時候，基本上繼承自ModelViewSet
+   1. 創建用戶def create的功能，調用save()前要調用is_valid()。
+   2. def list可以自行設置。
+   3. def retrieve用戶詳情，user包含密碼，通過del data['password']將password刪掉。
+   4. create將密碼加密
+4. 打開網頁create user list，測試創建user。創建後返回的資料，則是在serializer中meta中定義的。
+5. 如何在文章編輯增加標題字段，在models.py的class Articles增加title的欄位，再做makemigrations跟migrate。再到serializers.py的class ArticleSerializer底下的meta新增fields=['title']。
+6. 通過命令行測試
+```shell
+#1. 安裝套件與查詢
+pip install httpie 
+http GET http://127.0.0.1:8000/api/v2/articles/3/
+
+#2. 修改
+http PUT http://127.0.0.1:8000/api/v2/articles/3/ article='Hello' #會報錯，因為沒有經過驗證
+http -a admin:admin PUT http://127.0.0.1:8000/api/v2/articles/3/ article='Hello' #兩個admin分別為用戶名跟密碼
+
+#3. 刪除
+http -a admin:admin DELETE http://127.0.0.1:8000/api/v2/articles/3/
+```
+
+07如何擴展現有用戶屬性
+====
+1. 打開v3版本，原本用預設的user model，現在要做更多功能，例如: 積分，則可以使用userprofile。
+2. 打開urls.py，已增加router.register(r'userprofile', views.UserProfileViewSet, 'user-profile') 
+   1. 使用第三方登入(wechat或QQ)，再返回用戶訊息
+   2. 打開網頁連結仍是v2，因為api共用，所以沒有更動
+   3. 下面已增加userprofile的欄位，打開django官方user model的擴展說明，目前使用的為第一種方法
+3. 代碼擴展實現，views.py, serializers.py, models.py，以下是官方文檔說明，可以以此方法擴展與同步。
+```python
+#1. 定義個userprofile class，在裡面新增model欄位
+username = models.OneToOneField(User, related_name="profile") #當前用戶名和User是一對一的關係，此User為Django預設的
+
+#2. 給定義增加屬性
+def get_blacklist(cls):
+   return cls.objects.filter(is_active=False)
+
+#3. 使用receiver裝飾器，當模型創建原始用戶的時候，不會連動、添加用戶，要讓user跟userprofile連動起來。
+UserProfile.objects.create(username=instance) 
+#當創建User的時候，將username綁訂到userProfile上
+
+#4. receiver第一個參數是signal，跨模型通信可以用signal激活程序
+@reciever(post_save, sender=User)  #當User產生post_save信號時，激活底下被裝飾的函數
+
+#5. 不是創建的時候也要激活，保證關聯的model可以進行同步。
+instance.profile.save() 
+```
+4. 打開serializers.py，打開views.py，
+5. 官方文檔自定義用戶模型，一定要繼承AbstractBaseUser，原始的用戶(包含admin)就會失效。
+6. 當程序愈大，要改為自定義的用戶，驗證時用JWT的方式，更方便關聯第三方的登入。
+
+08增加評論功能，實現兩個自定義Model的關聯屏
+====
+1. 打開V3，將回覆、評論與文章聯繫，添加model也要有關聯。
+2. 繪製ER圖
+<img src="./images/02.png">
+
+3. 只有登入者可以評論，評論的文章兩個外鍵。另外再加回覆id。
+```python
+#打開models.py
+__tablename__ = "posts"
+```
+4. serializers.py設定要顯示的訊息，PostsSerializer。
+
+09實現搜索和站內消息
+====
+1. 用戶與用戶間評論後，有個通知功能。以及搜索功能。
+2. 搜索請求方式，urls後面articles/?search=blog，如何實現?
+   1. 在install_apps安裝django_filters
+   2. 打開views.py中，使用DRF的搜索，直接from django_filters import rest_framework as rf_filters，較簡單實現搜索功能。
+```python
+filter_backends = (rf_filters.DjangoFilterBackend, filters.SearchFilter,)
+```
+   4. 在filter.py中，設置搜索的class。fields設只搜索那些自斷。在views.py中，透過from .filter import ArticlesFilters。
+   5. 再設定搜索時要用哪個字段，search_fields = ['title', 'body']，因為上面返回的也只有這兩個字段。
+   6. 建議先閱讀官方文檔的quickstart，了解DRF。
+1. 如何發送站內信?可以打開官方文檔 https://docs.djangoproject.com/en/2.2/topics/signals/
+   1. 可以使用notify.send()，notify是定義好的功能。verb放入通知的訊息。
+   2. 發送的訊息是持久化，要在installed_apps引入notifications，也需要做migrate，遷移到數據庫。
+   3. 發送者、接收者、動詞。
+   4. 打開views.py，如何找到發送者的id以及接收者的id。
+   5. 如果想要在網頁上直接展示評論內容，在Response的時候，將訊息加進去。看到class UserViewSet
+   6. 只在retrieve的時候顯示，從user底下找到unread()通知，mode_to_dict以免覆蓋，組成key與列表。實際上應該在serializers.py裡面設計，而不是在response之前展示。
+2. notifications.unread()還有沒有其他的功能? notify裡的訊號，可以到官網看。https://pypi.org/project/django-notifications-hq/
