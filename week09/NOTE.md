@@ -93,9 +93,9 @@ python manage.py runserver
 ====
 1. 從最核心的功能開始實現，打開mircoblog_v1
 2. 先從models.py構建，只需Articals
-   1. 編寫文章與用戶的序列化
-   2. 編輯視圖，用戶和文章，以及函數視圖將以上兩個做連接
-   3. 編寫permission.py
+   1. 編寫serailizers.py，建立Articles與User的序列化
+   2. 編輯views.py，User、Articles，以func視圖將以上兩個models做連接
+   3. 編寫permissions.py，自定義權限只允許對象的所有者編輯。
    4. 編寫urls.py路徑，被最外層的urls.py引入。因為使用mysql，所以引入__init__.py，正常看的時候，視反過來讀的，從__init__.py開始讀。
 3. 編寫順序
    1. settings.py，編寫installed_apps，引入apps。
