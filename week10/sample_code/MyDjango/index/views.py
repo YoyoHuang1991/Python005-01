@@ -10,7 +10,7 @@ from .models import Name
 
 def index(request):
     # http://127.0.0.1:8000/?id=1&id=2&name=wilson
-    # print(request.GET)
+    print(request.GET)
     # <QueryDict: {'id': ['1', '2'], 'name': ['wilson']}>
     return HttpResponse("Hello Django!")
 
@@ -45,4 +45,4 @@ def test2(request):
 
     from django.http import HttpResponseNotFound
     response4 = HttpResponseNotFound('<h1>Page not found</h1>')
-    return response4
+    return response3
