@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/Users/yuyuhuang/.virtualenvs/my_django_environment/bin/python",
+    "python.pythonPath": "d:\\venv\\Scripts\\python.exe",
     "editor.wordWrap": "on",
     "workbench.preferredLightColorTheme": "Default Dark+",
     "workbench.preferredDarkColorTheme": "Solarized Dark",
