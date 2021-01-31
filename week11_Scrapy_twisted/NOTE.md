@@ -444,4 +444,202 @@ str_val = mp.Value(c_char_p, b"Hello World")
 
 07多進程: 進程池
 ====
-1.  
+* 进程池学习文档： https://docs.python.org/zh-cn/3.7/library/multiprocessing.html#module-multiprocessing.pool
+* 迭代器学习文档： https://docs.python.org/zh-cn/3.7/library/stdtypes.html#iterator-types
+
+1.  每一個進程都要消耗一個邏輯的CPU，用進程池限制創建進程的數量。
+2.  打開p15_pool.py，先設定Pool(4)，設為4個CPU，我的PC是8核心。
+    1.  apply_async()異步運行，同步則是apply()變成僅用for in，就沒有用Pool的意義。args得傳入tuple的形式。
+    2.  併發而非照順序，要照順序則用隊列。
+    3.  run如何實現，用random.choice避免大量同時向目標發起請求
+    4.  close是溫柔地結束，terminate則是強制結束，join等子進程結束才結束父進程。
+    5.  join要放在close後面，或是terminate後面，否則會產生死鎖
+
+```python
+# Pool 类表示一个工作进程池
+# 如果要启动大量的子进程，可以用进程池的方式批量创建子进程
+from multiprocessing.pool import Pool
+from time import sleep, time
+import random
+import os
+
+def run(name):
+    print("%s子进程开始，进程ID：%d" % (name, os.getpid()))
+    start = time()
+    sleep(random.choice([1, 2, 3, 4]))
+    end = time()
+    print("%s子进程结束，进程ID：%d。耗时%0.2f" % (name, os.getpid(), end-start))
+
+
+if __name__ == "__main__":
+    print("父进程开始")
+    # 创建多个进程，表示可以同时执行的进程数量。默认大小是CPU的核心数
+    p = Pool(4)
+    for i in range(10):
+        # 创建进程，放入进程池统一管理
+        p.apply_async(run, args=(i,))
+    # 如果我们用的是进程池，在调用join()之前必须要先close()，
+    # 并且在close()之后不能再继续往进程池添加新的进程
+    p.close()
+    # 进程池对象调用join，会等待进程池中所有的子进程结束完毕再去结束父进程
+    p.join()
+    print("父进程结束。")
+    p.terminate()
+
+# 
+# close()：如果我们用的是进程池，在调用join()之前必须要先close()，
+# 并且在close()之后不能再继续往进程池添加新的进程
+# join()：进程池对象调用join，会等待进程池中所有的子进程结束完毕再去结束父进程
+# terminate()：一旦运行到此步，不管任务是否完成，立即终止。
+
+```
+
+3. 打開p18_deadlock.py死鎖，join關閉queue和進程，若再執行queue.get()取數據，則會產生死鎖。解決方法，把p.join()刪掉。
+
+```python
+# join dead lock
+from multiprocessing import Process, Queue
+
+def f(q):
+    q.put('X' * 1000000)
+
+if __name__ == '__main__':
+    queue = Queue()
+    p = Process(target=f, args=(queue,))
+    p.start()
+    p.join()                    # this deadlocks
+    obj = queue.get()
+
+#  交换最后两行可以修复这个问题（或者直接删掉 p.join()）
+```
+
+4. 如果超時，如何處理? 打開p16_timeout.py，
+   1. processes=4關鍵字參數，增加可讀性。
+   2. pool對象轉成可讀的文字，.get(timeout=1)，增加超時的處裡。
+   3. time.sleep(10)製作timeout異常的情況。
+   4. 捕獲異常可以存到隊列，可以判斷是否被反爬蟲發現，以調整策略。
+```python
+from multiprocessing import Pool
+import time
+
+def f(x):
+    return x*x
+
+if __name__ == '__main__':
+    with Pool(processes=4) as pool:         # 进程池包含4个进程
+        result = pool.apply_async(f, (10,)) # 执行一个子进程
+        print(result.get(timeout=1))        # 显示执行结果
+
+        result = pool.apply_async(time.sleep, (10,))
+        print(result.get(timeout=1))        # raises multiprocessing.TimeoutError
+```
+5. 更方便的方法，即是Python內建的Map映射，以此創建多進程。
+   1. 省去寫for in
+   2. 將urls建成tuple或list
+   3. map輸出列表，imap輸出迭代器，使用next()取出值。
+   4. it.next(timeout=1)
+```python
+from multiprocessing import Pool
+import time
+
+def f(x):
+    return x*x
+
+if __name__ == '__main__':
+    with Pool(processes=4) as pool:         # 进程池包含4个进程
+
+        print(pool.map(f, range(10)))       # 输出 "[0, 1, 4,..., 81]"
+                    
+        it = pool.imap(f, range(10))        # map输出列表，imap输出迭代器
+        print(it)               
+        print(next(it))                     #  "0"
+        print(next(it))                     #  "1"
+        print(it.next(timeout=1))           #  "4" 
+```
+
+08多線程: 創建線程
+====
+* 基于线程的并行学习文档：https://docs.python.org/zh-cn/3.7/library/threading.html
+* 基于进程的并行学习文档：https://docs.python.org/zh-cn/3.7/library/multiprocessing.html
+* 底层多线程 API：https://docs.python.org/zh-cn/3.7/library/_thread.html
+
+1. 使用C++與java的高手都會使用多線進程，而python則多以多進程和多線程的配合。
+2. 進程與線程的區別? 
+   1. 多進程併發對硬體有很重的資源開銷
+   2. 多線程是跑在一個進程當中，內存可互相訪問，較多進程方便數據同步
+3. 阻塞的同步與異步? 
+   1. 阻塞是從調用方來看，發起後能不能做別的事情? 例如: request是要等待網頁返回資料，是阻塞的；Scrapy則是發起一個連接，可以再發起第二個連接，使用async方式就是非阻塞。
+   2. 同步異步是被調用方，例如: 發起電話，被調用方直接回應，則是同步；若是只發個短信，待會才回應，則是異步。
+   3. 非阻塞、異步效率高，但是很難排錯，例如: twisted demo，要調適、了解過程非常難。
+4. 為何需要再搞一個協程?
+   1. python的特殊原因，多線程只能在一個cpu中運行；若要在多個核心運行，則要多進程。
+   2. 為提高效率，多線程來做方便通信，多進程則佔用更多cpu以消耗計算資源。
+   3. 進程與協程是系統控制，讓進程切換更輕量且由使用者控制，則需要協程。
+<img src="./images/08-01.png">
+
+5. 打開2線程/p1_func.py
+```python
+import threading
+
+# 这个函数名可随便定义
+def run(n):
+    print("current task：", n)
+
+if __name__ == "__main__":
+    t1 = threading.Thread(target=run, args=("thread 1",))
+    t2 = threading.Thread(target=run, args=("thread 2",))
+    t1.start()
+    t2.start()
+    
+# 调用方
+# 阻塞  得到调用结果之前，线程会被挂起
+# 非阻塞 不能立即得到结果，不会阻塞线程
+
+# 被调用方 
+# 同步 得到结果之前，调用不会返回
+# 异步 请求发出后，调用立即返回，没有返回结果，通过回调函数得到实际结果
+```
+6. 面相對象的方式p2_class.py，run是覆蓋父類的run方法。
+   * 若使用CPython，可以在t1.join後面加上sleep，查看進程和線程的情況
+   * 會發現兩個線程都在同一個進程當中，在start時，除了產生主進程或線程外，又產生新的線程。
+```python
+import threading
+
+class MyThread(threading.Thread):
+    def __init__(self, n):
+        super().__init__() # 重构run函数必须要写
+        self.n = n
+
+    def run(self):
+        print("current task：", self.n)
+
+if __name__ == "__main__":
+    t1 = MyThread("thread 1")
+    t2 = MyThread("thread 2")
+
+    t1.start()
+    t2.start()
+    # 将 t1 和 t2 加入到主线程中
+    t1.join()
+    t2.join()
+```
+7. 打開p3_alive.py，Thread的內置方法
+   * alive()看是否正在活動, start()後才會是True，join()之後又是False。
+```python
+import threading
+import time
+def start():
+    time.sleep(5)
+
+thread1 = threading.Thread(target=start)
+print(thread1.is_alive())
+
+thread1.start()
+
+print(thread1.getName())
+print(thread1.is_alive())
+
+thread1.join()
+
+print(thread1.is_alive())
+```
