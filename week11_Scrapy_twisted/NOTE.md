@@ -643,3 +643,6 @@ thread1.join()
 
 print(thread1.is_alive())
 ```
+
+09
+====
