@@ -96,16 +96,16 @@ if __name__ == '__main__':
     # 将结果保存到一个json文件中
     output = open('book.json','a',encoding='utf-8') 
 
-    # 任务队列，存放网页的队列
+    # 任务队列，存放网页的队列，存放內容
     pageQueue = Queue(20) 
     for page in range(0,11): 
-        pageQueue.put(page) 
+        pageQueue.put(page) #只獲取前十頁
     
     # 爬虫线程
     crawl_threads = []
-    crawl_name_list = ['crawl_1','crawl_2','crawl_3'] 
+    crawl_name_list = ['crawl_1','crawl_2','crawl_3'] #爬蟲的名字
     for thread_id in crawl_name_list:
-        thread = CrawlThread(thread_id,pageQueue)
+        thread = CrawlThread(thread_id,pageQueue)     #把爬蟲名與頁面結果放到pageQueue
         thread.start() 
         crawl_threads.append(thread)
     
