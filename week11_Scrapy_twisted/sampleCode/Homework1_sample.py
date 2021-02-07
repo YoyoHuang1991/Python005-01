@@ -11,19 +11,28 @@ class CountDownLatch:
     # 條件鎖，滿足某個條件才會釋放
 
     def wait(self):
+        """
+        Condition對象維護了一個鎖（Lock/RLock)和一個waiting池。
+        線程通過acquire獲得Condition對象，當調用wait方法時，線程會釋放Condition內部的鎖並進入blocked狀態，同時在waiting池中記錄這個線程。
+        當調用notify方法時，Condition對象會從waiting池中挑選一個線程，通知其調用acquire方法嘗試取到鎖。
+        """
+
         try:
-            self.condition.acquire()
+            self.condition.acquire() 
             while self.count > 0:
+                print(self.count)
                 self.condition.wait()  
+                print(self.count, "end")
                 #讓程序阻塞，直到count為0，方釋放掉鎖
         finally:
             self.condition.release()
 
     def count_down(self):
         try:
+            print("hell")
             self.condition.acquire()
             self.count -= 1
-            self.condition.notifyAll()
+            self.condition.notify()
         finally:
             self.condition.release()
 
@@ -42,6 +51,7 @@ class DiningPhilosophers(threading.Thread):
 
         self.operate_queue = operate_queue
         self.count_latch = count_latch
+
 
     def eat(self):
         #模拟吃饭有快有慢
@@ -98,7 +108,7 @@ if __name__ == '__main__':
     fork4 = threading.Lock()
     fork5 = threading.Lock()
 
-    n = 1
+    n = 3
     latch = CountDownLatch(5 * n)  #五位哲學家，若每人一次，則總共有5個latch
 
     # 开始吃饭, 每個哲學家有n個線程
@@ -118,8 +128,8 @@ if __name__ == '__main__':
         philosopher4 = DiningPhilosophers(4, fork4, fork5, operate_queue, latch)
         philosopher4.start()
 
-    latch.wait()  #總共等5*n的鎖的count皆為0才釋放掉
+    latch.wait()  #wait直到「五個哲學家*n次」的鎖皆為0
     queue_list = []
-    for i in range(5 * 5 * n):  
+    while not operate_queue.empty():  
         queue_list.append(operate_queue.get())
-    print(queue_list)
+    print(queue_list, len(queue_list))
