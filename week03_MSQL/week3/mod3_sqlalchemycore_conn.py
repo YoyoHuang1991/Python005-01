@@ -9,7 +9,7 @@ from sqlalchemy import create_engine,Table,Column,Integer,String,MetaData,Foreig
 # mysql> create database testdb;
 # mysql> GRANT ALL PRIVILEGES ON testdb.* TO 'testuser'@'%' IDENTIFIED BY 'testpass';
 # echo=True 开启调试
-engine=create_engine("mysql+pymysql://testuser:testpass@server1:3306/testdb",echo=True)
+engine=create_engine("mysql+pymysql://yuyu:1234@10.225.109.101:3306/db1",echo=True)
  
 # 创建元数据
 metadata=MetaData(engine)
