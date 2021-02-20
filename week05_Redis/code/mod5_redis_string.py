@@ -1,7 +1,7 @@
 # 操作string
 import redis
 
-client = redis.Redis(host='localhost', password='')
+client = redis.Redis(host='10.225.109.101', password='1234')
 
 client.set('key', 'value3', nx=True)
 
